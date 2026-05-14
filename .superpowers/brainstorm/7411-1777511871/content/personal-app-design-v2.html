@@ -1,0 +1,118 @@
+<h2>修正版：個人用アプリの基本設計</h2>
+<p class="subtitle">複数学期対応 + ログイン機能</p>
+
+<div class="mockup">
+  <div class="mockup-header">アプリ構成（修正）</div>
+  <div class="mockup-body" style="padding: 2rem;">
+    
+    <h3 style="margin-top: 0; color: #000;">📱 個人用アプリの構成</h3>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+      <!-- セットアップフロー -->
+      <div style="background: #e3f2fd; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #1976d2;">
+        <p style="margin-top: 0; color: #000;"><strong>🔧 初回セットアップ</strong></p>
+        <ol style="margin: 0.5rem 0; font-size: 0.9rem; padding-left: 1.5rem; color: #000;">
+          <li>ログイン（認証）</li>
+          <li>前期の時間割を入力
+            <ul>
+              <li>授業名・曜日・時限・教室</li>
+            </ul>
+          </li>
+          <li>Slack Webhook を設定</li>
+          <li>後期の時間割も同様に入力</li>
+        </ol>
+      </div>
+      
+      <!-- 日常使用 -->
+      <div style="background: #e8f5e9; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #388e3c;">
+        <p style="margin-top: 0; color: #000;"><strong>📱 日常使用</strong></p>
+        <ul style="margin: 0.5rem 0; font-size: 0.9rem; color: #000;">
+          <li>ログイン</li>
+          <li>学期を選択（前期 / 後期）</li>
+          <li>ホーム画面表示
+            <ul style="margin-top: 0.3rem;">
+              <li>次の授業を大きく表示</li>
+              <li>授業終了5分前に Slack 通知</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 style="color: #000; margin-top: 2rem;">📊 データ構造</h3>
+    <div style="background: #f5f5f5; padding: 1.5rem; border-radius: 8px; border: 1px solid #999; font-family: monospace; font-size: 0.8rem; color: #000;">
+      <pre style="margin: 0; overflow-x: auto;"><code>{
+  user: {
+    id: "user_001",
+    password: "hashed_password",
+    slack_webhook_url: "https://hooks.slack.com/..."
+  },
+  schedules: [
+    {
+      id: "schedule_spring",
+      term: "前期",
+      classes: [
+        {
+          name: "線形代数",
+          day: "Monday",
+          period: 1,
+          start_time: "08:50",
+          end_time: "10:20",
+          room: "101教室"
+        }
+      ]
+    },
+    {
+      id: "schedule_fall",
+      term: "後期",
+      classes: [ ... ]
+    }
+  ]
+}</code></pre>
+    </div>
+
+    <h3 style="color: #000; margin-top: 2rem;">🎨 ホーム画面（イメージ）</h3>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+      <!-- 現在時刻中 -->
+      <div>
+        <p style="margin: 0 0 1rem; font-size: 0.9rem; font-weight: bold; color: #000;">現在：授業中（09:35）</p>
+        <div style="background: #fff9c4; padding: 2rem 1.5rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); text-align: center; min-height: 200px; display: flex; flex-direction: column; justify-content: center; border: 2px solid #f57f17;">
+          <p style="margin: 0; font-size: 0.8rem; color: #333;">次の授業（あと25分）</p>
+          <h1 style="margin: 0.5rem 0; color: #c41c3b; font-size: 2.2rem; line-height: 1;">線形代数</h1>
+          <p style="margin: 0.5rem 0; font-size: 1.3rem; color: #0d47a1; font-weight: bold;">101教室</p>
+          <p style="margin: 1rem 0 0; font-size: 0.75rem; color: #555;">開始: 10:00</p>
+        </div>
+      </div>
+      
+      <!-- 授業なし時 -->
+      <div>
+        <p style="margin: 0 0 1rem; font-size: 0.9rem; font-weight: bold; color: #000;">授業なし時間（15:30）</p>
+        <div style="background: #c8e6c9; padding: 2rem 1.5rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); text-align: center; min-height: 200px; display: flex; flex-direction: column; justify-content: center; border: 2px solid #1b5e20;">
+          <p style="margin: 0; font-size: 0.8rem; color: #000;">本日の予定</p>
+          <h1 style="margin: 0.5rem 0; color: #00695c; font-size: 1.8rem; line-height: 1;">授業終了</h1>
+          <p style="margin: 0.5rem 0; font-size: 0.9rem; color: #000;">次の授業は明日です</p>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="color: #000; margin-top: 2rem;">🎯 学期切り替え</h3>
+    <div style="background: #fff3e0; padding: 1.5rem; border-radius: 8px; border: 1px solid #e65100;">
+      <p style="margin: 0 0 1rem; font-weight: bold; color: #000;">ホーム画面上部に学期選択ボタン</p>
+      <div style="display: flex; gap: 1rem;">
+        <button style="padding: 0.5rem 1rem; background: #ff6f00; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">前期</button>
+        <button style="padding: 0.5rem 1rem; background: #ccc; color: #000; border: none; border-radius: 4px; cursor: pointer;">後期</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top: 2rem; padding: 1.5rem; background: #ffebee; border-radius: 8px; border-left: 4px solid #c41c3b; color: #000;">
+  <p style="margin: 0;"><strong>✅ 修正版のポイント</strong></p>
+  <ul style="margin: 0.5rem 0 0; font-size: 0.9rem;">
+    <li>✓ 個人用アプリ（1ユーザー専用）</li>
+    <li>✓ ログイン機能あり（複数学期を安全に管理）</li>
+    <li>✓ 前期・後期を切り替え可能</li>
+    <li>✓ ホーム画面 + Slack 通知</li>
+    <li>✓ シンプルで使いやすい</li>
+  </ul>
+</div>

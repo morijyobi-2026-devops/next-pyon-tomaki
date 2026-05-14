@@ -1,0 +1,7 @@
+{"type":"server-started","port":61878,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:61878","screen_dir":"/home/shun417jp/ghq/github.com/morijyobi-2026-devops/next-pyon-tomaki/.superpowers/brainstorm/7411-1777511871/content","state_dir":"/home/shun417jp/ghq/github.com/morijyobi-2026-devops/next-pyon-tomaki/.superpowers/brainstorm/7411-1777511871/state"}
+{"type":"screen-added","file":"/home/shun417jp/ghq/github.com/morijyobi-2026-devops/next-pyon-tomaki/.superpowers/brainstorm/7411-1777511871/content/approaches.html"}
+{"type":"screen-added","file":"/home/shun417jp/ghq/github.com/morijyobi-2026-devops/next-pyon-tomaki/.superpowers/brainstorm/7411-1777511871/content/architecture.html"}
+{"type":"screen-added","file":"/home/shun417jp/ghq/github.com/morijyobi-2026-devops/next-pyon-tomaki/.superpowers/brainstorm/7411-1777511871/content/final-design.html"}
+{"type":"screen-added","file":"/home/shun417jp/ghq/github.com/morijyobi-2026-devops/next-pyon-tomaki/.superpowers/brainstorm/7411-1777511871/content/personal-app-design.html"}
+{"type":"screen-added","file":"/home/shun417jp/ghq/github.com/morijyobi-2026-devops/next-pyon-tomaki/.superpowers/brainstorm/7411-1777511871/content/personal-app-design-v2.html"}
+{"type":"server-stopped","reason":"owner process exited"}

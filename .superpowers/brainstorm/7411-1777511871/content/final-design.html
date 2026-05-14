@@ -1,0 +1,77 @@
+<h2>改定版：基本構成</h2>
+<p class="subtitle">個人用 + 管理者=学生 + ホーム画面+Slack通知</p>
+
+<div class="mockup">
+  <div class="mockup-header">システム構成（改定）</div>
+  <div class="mockup-body" style="padding: 2rem;">
+    
+    <h3 style="margin-top: 0; color: #1e40af;">ユーザー：学生（1人）</h3>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+      <!-- 初回セットアップ -->
+      <div style="background: #eff6ff; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #3b82f6;">
+        <p style="margin-top: 0;"><strong>🔧 初回セットアップ</strong></p>
+        <ul style="margin: 0.5rem 0; font-size: 0.9rem;">
+          <li>ログイン</li>
+          <li>授業を手動で登録
+            <ul style="margin-top: 0.3rem;">
+              <li>授業名</li>
+              <li>曜日・時限</li>
+              <li>教室</li>
+            </ul>
+          </li>
+          <li>Slack Webhook設定</li>
+        </ul>
+      </div>
+      
+      <!-- 日常使用 -->
+      <div style="background: #f0fdf4; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #22c55e;">
+        <p style="margin-top: 0;"><strong>📱 日常使用（毎日）</strong></p>
+        <ul style="margin: 0.5rem 0; font-size: 0.9rem;">
+          <li>ホーム画面を見る</li>
+          <li>授業終了5分前に：
+            <ul style="margin-top: 0.3rem;">
+              <li>画面に次の授業表示</li>
+              <li>Slack で通知</li>
+            </ul>
+          </li>
+          <li>教室へ移動</li>
+        </ul>
+      </div>
+    </div>
+    
+    <h3 style="color: #be123c; margin-top: 2rem;">ホーム画面イメージ</h3>
+    <div style="background: #fff1f2; padding: 2rem; border-radius: 8px; text-align: center;">
+      <div style="background: white; padding: 3rem 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); max-width: 300px; margin: 0 auto;">
+        <p style="margin: 0; font-size: 0.8rem; color: #666;">現在時刻</p>
+        <p style="margin: 0.5rem 0 0; font-size: 1.2rem; color: #666;">09:35</p>
+        
+        <div style="margin: 2rem 0; padding: 1.5rem; background: #fef3c7; border-radius: 8px;">
+          <p style="margin: 0; font-size: 0.9rem; color: #666;">次の授業（あと25分）</p>
+          <h1 style="margin: 0.5rem 0; color: #dc2626; font-size: 2.5rem; line-height: 1;">線形代数</h1>
+          <p style="margin: 0.5rem 0; font-size: 1.5rem; color: #1e40af; font-weight: bold;">101教室</p>
+        </div>
+        
+        <p style="margin: 1rem 0 0; font-size: 0.8rem; color: #666;">開始時刻 10:00</p>
+      </div>
+    </div>
+    
+    <h3 style="color: #be123c; margin-top: 2rem;">Slack通知イメージ</h3>
+    <div style="background: #f0f0f0; padding: 1rem; border-radius: 8px; border-left: 4px solid #36c5f0; font-family: monospace; font-size: 0.9rem;">
+      <p style="margin: 0; color: #36c5f0;"><strong>🔔 ClassroomBot</strong> 09:55</p>
+      <p style="margin: 0.5rem 0; color: #333;">次の授業: 線形代数</p>
+      <p style="margin: 0.5rem 0; color: #333;">教室: 101教室</p>
+      <p style="margin: 0.5rem 0; color: #666;">開始: 10:00 (5分後)</p>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top: 2rem; padding: 1rem; background: #d1fae5; border-radius: 8px; border-left: 4px solid #10b981;">
+  <p style="margin: 0;"><strong>✅ 確認事項のまとめ</strong></p>
+  <ul style="margin: 0.5rem 0 0; font-size: 0.9rem;">
+    <li>通知：ホーム画面 + Slack 両方</li>
+    <li>ユーザー：個人用（1人）</li>
+    <li>管理：自分で授業を手動登録</li>
+    <li>表示優先：授業名 + 教室名</li>
+  </ul>
+</div>

@@ -1,10 +1,15 @@
 # 次の教室案内システム 実装計画
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use
+> superpowers:subagent-driven-development (recommended) or
+> superpowers:executing-plans to implement this plan task-by-task.
+> Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Google Workspace 認証・授業管理・履修登録・ホーム表示を備えた個人用 Web アプリを ver0.1 で完成させる
+**Goal:** Google Workspace 認証・授業管理・履修登録・ホーム表示を備えた
+個人用 Web アプリを ver0.1 で完成させる
 
 **Architecture:**
+
 - **Frontend**: React 18 + TypeScript + Vite で SPA 構築
 - **Backend**: Node.js + Express で REST API 提供
 - **Database**: SQLite3 で ユーザー・授業・履修データ永続化
@@ -12,6 +17,7 @@
 - **Display Logic**: 現在時刻と履修データから表示内容を動的決定（テスト可能なユーティリティ）
 
 **Tech Stack:**
+
 - Frontend: React 18, TypeScript 5, Vite, @react-oauth/google, Vitest
 - Backend: Node.js 18+, Express 4, better-sqlite3, firebase-admin, jsonwebtoken
 - Database: SQLite3
@@ -21,7 +27,7 @@
 
 ## ファイル構造
 
-```
+```text
 next-pyon-tomaki/
 ├── .env.example                     # 環境変数テンプレート
 ├── .env.local                       # 実際の環境変数（gitignore）
@@ -147,9 +153,11 @@ VITE_GOOGLE_CLIENT_ID=YOUR_GOOGLE_CLIENT_ID_HERE
 ### 認証エンドポイント
 
 #### `POST /auth/google`
+
 Google ID Token をサーバーで検証し、JWT を発行
 
 **リクエスト:**
+
 ```json
 {
   "googleToken": "eyJhbGciOiJSUzI1NiIs..."
@@ -157,6 +165,7 @@ Google ID Token をサーバーで検証し、JWT を発行
 ```
 
 **レスポンス (成功):**
+
 ```json
 {
   "success": true,
@@ -171,6 +180,7 @@ Google ID Token をサーバーで検証し、JWT を発行
 ```
 
 **レスポンス (失敗):**
+
 ```json
 {
   "success": false,
@@ -183,14 +193,17 @@ Google ID Token をサーバーで検証し、JWT を発行
 ### 授業マスタエンドポイント (管理者のみ)
 
 #### `GET /classes`
+
 全授業一覧を取得
 
 **リクエストヘッダ:**
-```
+
+```text
 Authorization: Bearer {jwt_token}
 ```
 
 **レスポンス:**
+
 ```json
 {
   "classes": [
@@ -208,9 +221,11 @@ Authorization: Bearer {jwt_token}
 ```
 
 #### `POST /classes`
+
 新しい授業を登録（管理者のみ）
 
 **リクエストボディ:**
+
 ```json
 {
   "name": "数学 I",
@@ -223,6 +238,7 @@ Authorization: Bearer {jwt_token}
 ```
 
 **レスポンス:**
+
 ```json
 {
   "id": "class_001",
@@ -240,9 +256,11 @@ Authorization: Bearer {jwt_token}
 ### 履修登録エンドポイント (学生)
 
 #### `GET /enrollments`
+
 ログインユーザーの履修一覧を取得
 
 **レスポンス:**
+
 ```json
 {
   "enrollments": [
@@ -260,9 +278,11 @@ Authorization: Bearer {jwt_token}
 ```
 
 #### `POST /enrollments`
+
 授業を履修登録
 
 **リクエストボディ:**
+
 ```json
 {
   "classId": "class_001"
@@ -270,6 +290,7 @@ Authorization: Bearer {jwt_token}
 ```
 
 **レスポンス:**
+
 ```json
 {
   "success": true,
@@ -283,7 +304,7 @@ Authorization: Bearer {jwt_token}
 
 ### 関数シグネチャ
 
-```typescript
+```ts
 interface DisplayLogicInput {
   currentTime: Date;           // 現在時刻
   enrollments: CalendarItem[]; // 本日の履修授業（時系列順）
@@ -305,7 +326,7 @@ function determineDisplayState(input: DisplayLogicInput): DisplayLogicOutput
 
 ### 判定ロジック
 
-```
+```ts
 // ステップ 1: 本日の履修がない
 if (enrollments.length === 0) {
   return {
@@ -417,7 +438,7 @@ return {
 - [ ] **Task 5-1**: E2E テスト（6 シナリオ）
 - [ ] **Task 5-2**: 本番ビルド + ドキュメント整備
 
-**総計: 15 タスク**
+## 総計: 15 タスク
 
 ---
 

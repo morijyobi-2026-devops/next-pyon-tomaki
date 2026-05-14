@@ -1,0 +1,84 @@
+<h2>実装アプローチ 3つの案</h2>
+<p class="subtitle">各案のメリット・デメリットを確認して、どれが最適か選んでください</p>
+
+<div class="options">
+  <div class="option" data-choice="chrome-extension" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Chrome Extension</h3>
+      <p><strong>特徴：</strong>最もシンプル。ブラウザに拡張機能として追加</p>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>メリット</h4>
+          <ul>
+            <li>開発が最も簡単（1-2日）</li>
+            <li>Chrome内で自動実行可能</li>
+            <li>学校WebシステムにPC起動中は常時アクセス</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>デメリット</h4>
+          <ul>
+            <li>Chromeのみ対応</li>
+            <li>PC起動中のみ動作</li>
+            <li>スケーラビリティが低い</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="electron-app" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Electron デスクトップアプリ</h3>
+      <p><strong>特徴：</strong>Windows/Mac/Linux対応の独立したアプリ</p>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>メリット</h4>
+          <ul>
+            <li>Windows/Mac/Linux すべてに対応</li>
+            <li>ネイティブUIで使いやすい</li>
+            <li>より堅牢で拡張性が高い</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>デメリット</h4>
+          <ul>
+            <li>開発工数が多い（3-5日）</li>
+            <li>ファイルサイズが大きい</li>
+            <li>管理・更新が複雑</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="backend-server" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>バックエンドサーバー</h3>
+      <p><strong>特徴：</strong>Python/Node.js で24時間稼働するバックエンド</p>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>メリット</h4>
+          <ul>
+            <li>24時間常時稼働（最も確実）</li>
+            <li>ユーザー側の負荷がない</li>
+            <li>今後スケーラブル</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>デメリット</h4>
+          <ul>
+            <li>サーバーが必要（VPS/ラズパイ等）</li>
+            <li>初期セットアップが複雑</li>
+            <li>ランニングコストがかかる可能性</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p style="margin-top: 2rem; font-size: 0.9rem; color: #666;">💡 <strong>推奨：</strong>PC がいつも起動していることを考えると、<strong>A. Chrome Extension</strong> が最適です。シンプル・高速・メンテナンス不要</p>
