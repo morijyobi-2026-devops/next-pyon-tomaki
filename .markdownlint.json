@@ -1,0 +1,16 @@
+{
+  "default": true,
+  "MD013": {
+    "line_length": 120,
+    "code_lines": false,
+    "code_blocks": false,
+    "headers": false,
+    "headers_length": false,
+    "stern": false,
+    "tables": false
+  },
+  "MD040": {
+    "allowed_languages": ["bash", "shell", "json", "text", "tsx", "ts", "python", "sql", "env"]
+  },
+  "MD060": false
+}

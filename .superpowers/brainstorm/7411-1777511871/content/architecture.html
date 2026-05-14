@@ -1,0 +1,51 @@
+<h2>提案システムの基本構成</h2>
+<p class="subtitle">管理者登録 → 学生選択 → 個人カレンダー → 次の授業表示</p>
+
+<div class="mockup">
+  <div class="mockup-header">システムアーキテクチャ</div>
+  <div class="mockup-body">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; padding: 2rem;">
+      <!-- 管理者側 -->
+      <div>
+        <h3 style="color: #2563eb; margin-bottom: 1rem;">📋 管理者</h3>
+        <div style="background: #f0f9ff; padding: 1rem; border-radius: 8px; border-left: 4px solid #2563eb;">
+          <p><strong>授業マスタ登録</strong></p>
+          <ul style="margin: 0.5rem 0; font-size: 0.9rem;">
+            <li>授業名</li>
+            <li>曜日・時限</li>
+            <li>教室</li>
+            <li>担当教員</li>
+          </ul>
+        </div>
+      </div>
+      
+      <!-- 学生側 -->
+      <div>
+        <h3 style="color: #7c3aed; margin-bottom: 1rem;">👤 学生</h3>
+        <div style="background: #faf5ff; padding: 1rem; border-radius: 8px; border-left: 4px solid #7c3aed;">
+          <p><strong>初回設定：履修授業を選択</strong></p>
+          <ul style="margin: 0.5rem 0; font-size: 0.9rem;">
+            <li>ログイン</li>
+            <li>授業一覧から選択</li>
+            <li>個人カレンダー生成</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div style="margin-top: 2rem; padding: 1rem; background: #f3f4f6; border-radius: 8px; font-size: 0.9rem;">
+      <p><strong>以降の動作：</strong></p>
+      <p>ホーム画面で現在時刻を確認 → 授業終了5分前から次の授業を優先表示 → <strong style="color: #dc2626; font-size: 1.1rem;">「次の教室：○○」を大きく表示</strong></p>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top: 2rem; padding: 1rem; background: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b;">
+  <p><strong>✅ この構成の利点：</strong></p>
+  <ul>
+    <li>学校 Web システムのスクレイプ不要</li>
+    <li>UI/UX を自由に設計できる</li>
+    <li>複数キャンパス・複数ユーザー対応可能</li>
+    <li>保守性が高い</li>
+  </ul>
+</div>

@@ -29,4 +29,5 @@
 - [実装計画](docs/superpowers/plans/2026-05-14-implementation.md) - 15 タスク分解、5 フェーズ構成
 
 ## 更新日
+
 2026-05-14

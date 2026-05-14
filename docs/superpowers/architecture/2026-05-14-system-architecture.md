@@ -42,7 +42,7 @@
 
 ### 開発環境 (Development)
 
-```
+```text
 ローカルマシン (Linux/macOS/Windows)
 ├─ Frontend: npm run dev
 │  └─ Vite dev server on :5173
@@ -53,6 +53,7 @@
 ```
 
 **特徴：**
+
 - `wrangler` CLI でローカルに Workers + D1 をフルエミュレート
 - 本番環境と同じコードベース・同じ方言
 - ホットリロード対応で高速開発
@@ -76,7 +77,7 @@ npm run dev
 
 ### ステージング環境 (Stage)
 
-```
+```text
 Cloudflare
 ├─ Frontend: Cloudflare Pages
 │  └─ https://stage-classroom.example.com
@@ -87,13 +88,14 @@ Cloudflare
 ```
 
 **特徴：**
+
 - main ブランチへの push/merge で自動デプロイ
 - 環境テスト、デプロイ検証用
 - 本番に近い環境で動作確認
 
 ### 本番環境 (Production)
 
-```
+```text
 Cloudflare
 ├─ Frontend: Cloudflare Pages
 │  └─ https://classroom.example.com
@@ -104,6 +106,7 @@ Cloudflare
 ```
 
 **特徴：**
+
 - git tag v0.1 自動デプロイで起動
 - 本番用の独立したリソース
 - ステージングとの完全分離
@@ -125,7 +128,7 @@ Cloudflare
 
 ## 4. デプロイメントパイプライン
 
-```
+```text
 feature/phase-N (開発ブランチ)
     ↓ git push
 GitHub PR
@@ -149,7 +152,7 @@ Production Auto Deploy
 
 **デプロイ詳細：**
 
-#### Stage デプロイ (main へのマージ時)
+### Stage デプロイ (main へのマージ時)
 
 ```bash
 # GitHub Actions ワークフロー: .github/workflows/deploy-stage.yml
@@ -162,7 +165,7 @@ cd frontend && npm run build && npm run deploy:stage
 cd backend && wrangler deploy --env stage
 ```
 
-#### Production デプロイ (タグ作成時)
+### Production デプロイ (タグ作成時)
 
 ```bash
 # GitHub Actions ワークフロー: .github/workflows/deploy-production.yml
@@ -179,7 +182,7 @@ cd backend && wrangler deploy --env production
 
 ## 5. ディレクトリ構成
 
-```
+```text
 next-pyon-tomaki/
 ├─ frontend/
 │  ├─ src/
