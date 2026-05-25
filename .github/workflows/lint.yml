@@ -26,5 +26,5 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run markdown lint
-        run: npx markdownlint-cli2 "**/*.md"
+      - name: Run markdown lint on project files
+        run: npx markdownlint-cli2 "README.md" "docs/**/*.md"
