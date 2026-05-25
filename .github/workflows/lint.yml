@@ -27,4 +27,4 @@ jobs:
         run: npm ci
 
       - name: Run markdown lint
-        run: npx markdownlint-cli2 "**/*.md" --ignore "node_modules/**"
+        run: npx markdownlint-cli2 "**/*.md"
