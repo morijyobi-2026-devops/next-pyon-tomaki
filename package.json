@@ -1,0 +1,16 @@
+{
+  "name": "next-pyon-tomaki",
+  "version": "1.0.0",
+  "description": "Documentation and linting setup for next-pyon-tomaki",
+  "scripts": {
+    "prepare": "husky install"
+  },
+  "lint-staged": {
+    "*.md": "markdownlint-cli2"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.5",
+    "markdownlint-cli2": "^0.12.0"
+  }
+}
