@@ -3,8 +3,8 @@
   "extends": ["config:base"],
   "timezone": "Asia/Tokyo",
   "schedule": [
-    "before 5am on Monday",
-    "before 5am on Thursday"
+    "at 5am on Monday",
+    "at 5am on Thursday"
   ],
   "npm": {
     "minimumReleaseAge": "3 days"
@@ -17,6 +17,20 @@
     },
     {
       "description": "Enable automerge for minor and patch updates",
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash"
+    },
+    {
+      "description": "GitHub Actions require manual review for major updates",
+      "matchDatasources": ["github-tags"],
+      "matchUpdateTypes": ["major"],
+      "automerge": false
+    },
+    {
+      "description": "Auto-merge minor and patch updates for GitHub Actions",
+      "matchDatasources": ["github-tags"],
       "matchUpdateTypes": ["minor", "patch"],
       "automerge": true,
       "automergeType": "pr",
