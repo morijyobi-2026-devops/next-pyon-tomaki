@@ -10,7 +10,7 @@ services:
     environment:
       NODE_ENV: development
       NEXT_TELEMETRY_DISABLED: 1
-      DATABASE_URL: file:./data/dev.db
+      DATABASE_URL: file:/app/data/dev.db
       NEXT_PUBLIC_API_URL: http://localhost:3000
       SCHOOL_EMAIL_DOMAIN: ${SCHOOL_EMAIL_DOMAIN:-@school.ac.jp}
       ADMIN_EMAILS: ${ADMIN_EMAILS:-admin@school.ac.jp}
@@ -28,11 +28,12 @@ services:
     ports:
       - "3000:3000"
     
-    restart: always
+    restart: "no"
     
     networks:
       - my_network
 
 networks:
   my_network:
-    external: true
+    external: false
+    driver: bridge
