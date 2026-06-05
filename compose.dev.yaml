@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+  next-app:
+    container_name: next-pyon-tomaki-dev
+    build:
+      context: .
+      dockerfile: next-app/dev.Dockerfile
+    
+    environment:
+      NODE_ENV: development
+      NEXT_TELEMETRY_DISABLED: 1
+      DATABASE_URL: file:/app/data/dev.db
+      NEXT_PUBLIC_API_URL: http://localhost:3000
+      SCHOOL_EMAIL_DOMAIN: ${SCHOOL_EMAIL_DOMAIN:-@school.ac.jp}
+      ADMIN_EMAILS: ${ADMIN_EMAILS:-admin@school.ac.jp}
+    
+    env_file:
+      - .env.local
+    
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/next-app/node_modules
+      - /app/next-app/.next
+      - ./data:/app/data
+    
+    ports:
+      - "3000:3000"
+    
+    restart: "no"
+    
+    networks:
+      - my_network
+
+networks:
+  my_network:
+    external: false
+    driver: bridge

@@ -1,0 +1,18 @@
+{
+  // Keep Renovate's baseline safety defaults.
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    // Pin GitHub Actions to immutable digests and keep those digests updated.
+    "helpers:pinGitHubActionDigests",
+  ],
+
+  // Renovate schedule uses repository-local time with hour-level granularity.
+  "timezone": "Asia/Tokyo",
+  "schedule": [
+    "* 5 * * 1,4",
+  ],
+
+  // Avoid immediately consuming freshly published releases.
+  "minimumReleaseAge": "3 days",
+}

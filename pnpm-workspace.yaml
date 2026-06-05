@@ -1,4 +1,14 @@
-packages: []
+packages:
+  - "next-app"
 
 settings:
   minimumReleaseAge: 2880
+
+overrides:
+  electron-to-chromium: 1.5.366
+
+allowBuilds:
+  '@prisma/client': true
+  '@prisma/engines': true
+  prisma: true
+
