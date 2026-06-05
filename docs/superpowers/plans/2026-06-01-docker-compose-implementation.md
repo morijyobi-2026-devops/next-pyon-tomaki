@@ -8,7 +8,7 @@
 
 **Architecture:**
 
-`next-app/` ディレクトリ内に Next.js アプリケーションを配置し、`compose.dev.yaml` で管理。
+`next-pyon/` ディレクトリ内に Next.js アプリケーションを配置し、`compose.dev.yaml` で管理。
 開発ファイル（src/, public/）はボリュームマウントでホットリロード対応。
 SQLite ファイルはホスト側（./data/）に永続化。Dockerfile の CMD で起動時にマイグレーション自動実行。
 
@@ -25,11 +25,11 @@ Docker 20.10+, Docker Compose 1.29+, Node.js 24-alpine, Next.js 14+, pnpm 9.15.9
 | ファイル | 種別 | 説明 |
 |---------|------|------|
 | `compose.dev.yaml` | 新規 | Docker Compose 開発環境設定 |
-| `next-app/dev.Dockerfile` | 新規 | 開発用 Dockerfile |
-| `next-app/package.json` | 新規 | Next.js 用 package.json |
-| `next-app/.gitignore` | 新規 | Next.js 用 .gitignore |
-| `next-app/tsconfig.json` | 新規 | TypeScript 設定 |
-| `next-app/next.config.js` | 新規 | Next.js 設定 |
+| `next-pyon/dev.Dockerfile` | 新規 | 開発用 Dockerfile |
+| `next-pyon/package.json` | 新規 | Next.js 用 package.json |
+| `next-pyon/.gitignore` | 新規 | Next.js 用 .gitignore |
+| `next-pyon/tsconfig.json` | 新規 | TypeScript 設定 |
+| `next-pyon/next.config.js` | 新規 | Next.js 設定 |
 | `.dockerignore` | 新規 | Docker ビルド除外設定 |
 | `.env.local.example` | 新規 | 環境変数テンプレート |
 | `scripts/init-docker.sh` | 新規 | Docker 初期化・起動スクリプト |
@@ -43,16 +43,16 @@ Docker 20.10+, Docker Compose 1.29+, Node.js 24-alpine, Next.js 14+, pnpm 9.15.9
 
 **Files:**
 
-- Create: `next-app/package.json`
-- Create: `next-app/tsconfig.json`
-- Create: `next-app/next.config.js`
-- Create: `next-app/.gitignore`
-- Create: `next-app/src/.gitkeep`
-- Create: `next-app/public/.gitkeep`
+- Create: `next-pyon/package.json`
+- Create: `next-pyon/tsconfig.json`
+- Create: `next-pyon/next.config.js`
+- Create: `next-pyon/.gitignore`
+- Create: `next-pyon/src/.gitkeep`
+- Create: `next-pyon/public/.gitkeep`
 
 **目的:** Next.js アプリケーションのベースディレクトリと設定ファイルを作成
 
-- [ ] **Step 1: next-app/package.json を作成**
+- [ ] **Step 1: next-pyon/package.json を作成**
 
 ```json
 {
@@ -87,7 +87,7 @@ Docker 20.10+, Docker Compose 1.29+, Node.js 24-alpine, Next.js 14+, pnpm 9.15.9
 }
 ```
 
-- [ ] **Step 2: next-app/tsconfig.json を作成**
+- [ ] **Step 2: next-pyon/tsconfig.json を作成**
 
 ```json
 {
@@ -119,7 +119,7 @@ Docker 20.10+, Docker Compose 1.29+, Node.js 24-alpine, Next.js 14+, pnpm 9.15.9
 }
 ```
 
-- [ ] **Step 3: next-app/next.config.js を作成**
+- [ ] **Step 3: next-pyon/next.config.js を作成**
 
 ```ts
 /** @type {import('next').NextConfig} */
@@ -131,7 +131,7 @@ const nextConfig = {
 module.exports = nextConfig
 ```
 
-- [ ] **Step 4: next-app/.gitignore を作成**
+- [ ] **Step 4: next-pyon/.gitignore を作成**
 
 ```text
 # Dependencies
@@ -175,20 +175,20 @@ yarn-error.log*
 .DS_Store
 ```
 
-- [ ] **Step 5: next-app/src/.gitkeep と public/.gitkeep を作成**
+- [ ] **Step 5: next-pyon/src/.gitkeep と public/.gitkeep を作成**
 
 ```bash
-mkdir -p next-app/src next-app/public
-touch next-app/src/.gitkeep next-app/public/.gitkeep
+mkdir -p next-pyon/src next-pyon/public
+touch next-pyon/src/.gitkeep next-pyon/public/.gitkeep
 ```
 
 - [ ] **Step 6: コミット**
 
 ```bash
-git add next-app/
+git add next-pyon/
 git commit -m "feat: initialize Next.js project structure
 
-- Create next-app directory with package.json
+- Create next-pyon directory with package.json
 - Add TypeScript configuration
 - Set up Next.js config with SWC minification
 - Initialize src/ and public/ directories
@@ -202,11 +202,11 @@ Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
 
 **Files:**
 
-- Create: `next-app/dev.Dockerfile`
+- Create: `next-pyon/dev.Dockerfile`
 
 **目的:** Node.js 24-alpine ベースの開発用 Dockerfile を作成。Prisma マイグレーション自動実行対応
 
-- [ ] **Step 1: next-app/dev.Dockerfile を作成**
+- [ ] **Step 1: next-pyon/dev.Dockerfile を作成**
 
 ```text
 # syntax=docker.io/docker/dockerfile:1
@@ -248,7 +248,7 @@ CMD sh -c "pnpm prisma migrate deploy && pnpm dev"
 - [ ] **Step 2: コミット**
 
 ```bash
-git add next-app/dev.Dockerfile
+git add next-pyon/dev.Dockerfile
 git commit -m "feat: add development Dockerfile for Next.js
 
 - Base image: node:24-alpine
@@ -276,10 +276,10 @@ Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
 version: "3.8"
 
 services:
-  next-app:
+  next-pyon:
     container_name: next-pyon-tomaki-dev
     build:
-      context: ./next-app
+      context: ./next-pyon
       dockerfile: dev.Dockerfile
     
     environment:
@@ -294,8 +294,8 @@ services:
       - .env.local
     
     volumes:
-      - ./next-app/src:/app/src
-      - ./next-app/public:/app/public
+      - ./next-pyon/src:/app/src
+      - ./next-pyon/public:/app/public
       - ./data:/app/data
       - /app/node_modules
       - /app/.next
@@ -319,7 +319,7 @@ networks:
 git add compose.dev.yaml
 git commit -m "feat: add Docker Compose development configuration
 
-- Define next-app service with Node.js 24-alpine
+- Define next-pyon service with Node.js 24-alpine
 - Volume mounts for hot-reload (src/, public/)
 - SQLite persistence via ./data volume
 - Environment variables from .env.local
@@ -545,7 +545,7 @@ Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
 **Files:**
 
 - Verify: `compose.dev.yaml`
-- Verify: `next-app/dev.Dockerfile`
+- Verify: `next-pyon/dev.Dockerfile`
 - Verify: `scripts/init-docker.sh`
 
 **目的:** Docker Compose セットアップが正しく動作することを確認
@@ -593,10 +593,10 @@ timeout 30 docker compose -f compose.dev.yaml up || true
 **Expected:** コンテナが起動し、以下のログが表示される：
 
 ```text
-next-app | > next-pyon-tomaki-app@0.1.0 dev
-next-app | > next dev
-next-app | ▲ Next.js 14.x.x
-next-app | - Local: http://localhost:3000
+next-pyon | > next-pyon-tomaki-app@0.1.0 dev
+next-pyon | > next dev
+next-pyon | ▲ Next.js 14.x.x
+next-pyon | - Local: http://localhost:3000
 ```
 
 - [ ] **Step 6: コンテナの状態を確認（別ターミナル）**
@@ -658,13 +658,13 @@ git status
 # http://localhost:3000
 
 # 開発時のコンテナアクセス
-docker compose -f compose.dev.yaml exec next-app sh
+docker compose -f compose.dev.yaml exec next-pyon sh
 
 # ホットリロード確認
 # src/ 内のファイルを編集してブラウザを見る
 
 # Prisma マイグレーション確認
-docker compose -f compose.dev.yaml exec next-app pnpm prisma migrate status
+docker compose -f compose.dev.yaml exec next-pyon pnpm prisma migrate status
 ```
 
 ---

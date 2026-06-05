@@ -1,14 +1,27 @@
+# workspace に含めるパッケージ
+# Next.js アプリ本体は next-pyon/ サブディレクトリで開発する。
 packages:
-  - "next-app"
+  - next-pyon
 
+# サプライチェーン対策（単位: 分）
+# pnpm のデフォルト値に依存せず、このリポジトリの運用値を明示する。
+# 将来のデフォルト変更があっても、install 時の判定基準が勝手に変わらないようにする。
+# Renovate 側の minimumReleaseAge は 3 日で運用予定のため、
+# Renovate 経由の更新はこの 2 日 cutoff を超えたものだけが入る想定。
 settings:
   minimumReleaseAge: 2880
 
+# サプライチェーンポリシーを回避するためのバージョン固定設定
 overrides:
   electron-to-chromium: 1.5.366
 
+# ビルドスクリプト（postinstall 等）の実行可否を明示する。
+# create-next-app が next-pyon 側に生成していた設定をルートに統合した。
+# sharp / unrs-resolver はネイティブビルドを実行しない（Cloudflare では不要なため）。
+# Prisma はデータベースクライアント生成やマイグレーションのために実行を許可する。
 allowBuilds:
   '@prisma/client': true
   '@prisma/engines': true
   prisma: true
-
+  sharp: false
+  unrs-resolver: false

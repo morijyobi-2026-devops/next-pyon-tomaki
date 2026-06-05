@@ -36,9 +36,9 @@
 ```text
 next-pyon-tomaki/
 ├── compose.dev.yaml              # Docker Compose 開発環境設定
-├── next-app/                      # Next.js アプリケーション
+├── next-pyon/                      # Next.js アプリケーション
 │   ├── dev.Dockerfile            # 開発用 Dockerfile
-│   ├── package.json              # next-app パッケージ定義
+│   ├── package.json              # next-pyon パッケージ定義
 │   ├── pnpm-lock.yaml            # 依存関係ロック
 │   ├── tsconfig.json
 │   ├── next.config.js
@@ -69,10 +69,10 @@ next-pyon-tomaki/
 version: "3.8"
 
 services:
-  next-app:
+  next-pyon:
     container_name: next-pyon-tomaki-dev
     build:
-      context: ./next-app
+      context: ./next-pyon
       dockerfile: dev.Dockerfile
     
     environment:
@@ -97,8 +97,8 @@ services:
     # ボリュームマウント
     volumes:
       # ソースコードのホットリロード対応
-      - ./next-app/src:/app/src
-      - ./next-app/public:/app/public
+      - ./next-pyon/src:/app/src
+      - ./next-pyon/public:/app/public
       
       # SQLite 永続化（ホスト側）
       - ./data:/app/data
@@ -124,7 +124,7 @@ networks:
     external: true
 ```
 
-### 2. **next-app/dev.Dockerfile**
+### 2. **next-pyon/dev.Dockerfile**
 
 ```text
 # syntax=docker.io/docker/dockerfile:1
@@ -265,7 +265,7 @@ chmod +x scripts/init-docker.sh
 # → Next.js ホットリロード
 
 # 別ターミナル: コンテナシェルアクセス
-docker compose -f compose.dev.yaml exec next-app sh
+docker compose -f compose.dev.yaml exec next-pyon sh
 
 # コンテナ再起動（マイグレーション再実行など）
 docker compose -f compose.dev.yaml restart
@@ -278,7 +278,7 @@ docker compose -f compose.dev.yaml down
 
 ```bash
 # ホスト側で schema.prisma を編集後、コンテナ内でマイグレーション作成
-docker compose -f compose.dev.yaml exec next-app \
+docker compose -f compose.dev.yaml exec next-pyon \
   pnpm prisma migrate dev --name add_your_feature
 
 # マイグレーションファイルが ./prisma/migrations に自動保存される
@@ -292,8 +292,8 @@ docker compose -f compose.dev.yaml exec next-app \
 
 | パス | 目的 | 理由 |
 |------|------|------|
-| `./next-app/src:/app/src` | ホットリロード | ソースコード編集時にすぐ反映 |
-| `./next-app/public:/app/public` | 静的ファイル | public/favicon など |
+| `./next-pyon/src:/app/src` | ホットリロード | ソースコード編集時にすぐ反映 |
+| `./next-pyon/public:/app/public` | 静的ファイル | public/favicon など |
 | `./data:/app/data` | SQLite 永続化 | コンテナ再起動後もデータ保持 |
 
 ### マウント非対象（コンテナ内のみ）
@@ -353,7 +353,7 @@ docker compose -f compose.dev.yaml restart
 
 ```bash
 # src/ ディレクトリが正しくマウントされているか確認
-docker compose -f compose.dev.yaml exec next-app ls -la /app/src
+docker compose -f compose.dev.yaml exec next-pyon ls -la /app/src
 
 # Docker Desktop 設定を確認（macOS の場合）
 # - Preferences → Resources → File Sharing で next-pyon-tomaki を追加
@@ -381,7 +381,7 @@ docker compose -f compose.dev.yaml exec next-app ls -la /app/src
 
 このドキュメントをレビューして、以下の実装タスクに進みます：
 
-1. `next-app/` ディレクトリ作成 & Next.js 初期化
+1. `next-pyon/` ディレクトリ作成 & Next.js 初期化
 2. `dev.Dockerfile` 作成
 3. `compose.dev.yaml` 作成
 4. `.dockerignore` 作成
