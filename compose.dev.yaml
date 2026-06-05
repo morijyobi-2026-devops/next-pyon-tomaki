@@ -4,8 +4,8 @@ services:
   next-app:
     container_name: next-pyon-tomaki-dev
     build:
-      context: ./next-app
-      dockerfile: dev.Dockerfile
+      context: .
+      dockerfile: next-app/dev.Dockerfile
     
     environment:
       NODE_ENV: development
@@ -19,11 +19,11 @@ services:
       - .env.local
     
     volumes:
-      - ./next-app/src:/app/src
-      - ./next-app/public:/app/public
-      - ./data:/app/data
+      - .:/app
       - /app/node_modules
-      - /app/.next
+      - /app/next-app/node_modules
+      - /app/next-app/.next
+      - ./data:/app/data
     
     ports:
       - "3000:3000"
