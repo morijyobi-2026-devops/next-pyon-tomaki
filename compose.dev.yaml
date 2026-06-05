@@ -1,11 +1,11 @@
 version: "3.8"
 
 services:
-  next-app:
+  next-pyon:
     container_name: next-pyon-tomaki-dev
     build:
       context: .
-      dockerfile: next-app/dev.Dockerfile
+      dockerfile: next-pyon/dev.Dockerfile
     
     environment:
       NODE_ENV: development
@@ -21,8 +21,8 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
-      - /app/next-app/node_modules
-      - /app/next-app/.next
+      - /app/next-pyon/node_modules
+      - /app/next-pyon/.next
       - ./data:/app/data
     
     ports:
