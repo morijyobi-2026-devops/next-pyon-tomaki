@@ -1,0 +1,27 @@
+[tools]
+node = "24.15.0"
+pnpm = "11.5.0"
+
+[tasks.dev]
+description = "Start the Next.js development server (using Docker Compose)"
+run = "docker compose -f compose.dev.yaml up"
+
+[tasks.dev-local]
+description = "Start the Next.js development server locally (without container)"
+run = "pnpm --filter next-pyon dev"
+
+[tasks.build]
+description = "Build the Next.js application"
+run = "pnpm --filter next-pyon build"
+
+[tasks.install]
+description = "Install workspace dependencies"
+run = "pnpm install"
+
+[tasks.lint]
+description = "Run markdown linting"
+run = "npx markdownlint-cli2 \"README.md\" \"docs/**/*.md\""
+
+[tasks.format]
+description = "Run Next.js linter"
+run = "pnpm --filter next-pyon lint"
