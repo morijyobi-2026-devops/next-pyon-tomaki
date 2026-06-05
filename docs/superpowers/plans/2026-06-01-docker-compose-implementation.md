@@ -1,14 +1,18 @@
 # Docker Compose 開発環境セットアップ 実装計画
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended)
+> or superpowers:executing-plans to implement this plan task-by-task.
+> Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Docker Compose で Next.js 開発サーバーを完全に動作させる環境を構築する。Node.js をホストに インストール不要で、SQLite データベース永続化と Prisma マイグレーション自動実行を実現する
 
-**Architecture:** 
+**Architecture:**
 
-`next-app/` ディレクトリ内に Next.js アプリケーションを配置し、`compose.dev.yaml` で管理。開発ファイル（src/, public/）はボリュームマウントでホットリロード対応。SQLite ファイルはホスト側（./data/）に永続化。Dockerfile の CMD で起動時にマイグレーション自動実行。
+`next-app/` ディレクトリ内に Next.js アプリケーションを配置し、`compose.dev.yaml` で管理。
+開発ファイル（src/, public/）はボリュームマウントでホットリロード対応。
+SQLite ファイルはホスト側（./data/）に永続化。Dockerfile の CMD で起動時にマイグレーション自動実行。
 
-**Tech Stack:** 
+**Tech Stack:**
 
 Docker 20.10+, Docker Compose 1.29+, Node.js 24-alpine, Next.js 14+, pnpm 9.15.9, Prisma ORM, SQLite 3
 
@@ -38,6 +42,7 @@ Docker 20.10+, Docker Compose 1.29+, Node.js 24-alpine, Next.js 14+, pnpm 9.15.9
 ### Task 1: Next.js プロジェクト ディレクトリ構造の初期化
 
 **Files:**
+
 - Create: `next-app/package.json`
 - Create: `next-app/tsconfig.json`
 - Create: `next-app/next.config.js`
@@ -116,7 +121,7 @@ Docker 20.10+, Docker Compose 1.29+, Node.js 24-alpine, Next.js 14+, pnpm 9.15.9
 
 - [ ] **Step 3: next-app/next.config.js を作成**
 
-```javascript
+```ts
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -128,7 +133,7 @@ module.exports = nextConfig
 
 - [ ] **Step 4: next-app/.gitignore を作成**
 
-```
+```text
 # Dependencies
 node_modules
 .pnp
@@ -196,13 +201,14 @@ Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
 ### Task 2: dev.Dockerfile を作成
 
 **Files:**
+
 - Create: `next-app/dev.Dockerfile`
 
 **目的:** Node.js 24-alpine ベースの開発用 Dockerfile を作成。Prisma マイグレーション自動実行対応
 
 - [ ] **Step 1: next-app/dev.Dockerfile を作成**
 
-```dockerfile
+```text
 # syntax=docker.io/docker/dockerfile:1
 
 FROM node:24-alpine
@@ -259,13 +265,14 @@ Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
 ### Task 3: compose.dev.yaml を作成
 
 **Files:**
+
 - Create: `compose.dev.yaml`
 
 **目的:** Docker Compose で Next.js サービスを定義。ボリュームマウント、環境変数、ネットワーク設定を含む
 
 - [ ] **Step 1: compose.dev.yaml を作成**
 
-```yaml
+```text
 version: "3.8"
 
 services:
@@ -326,13 +333,14 @@ Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
 ### Task 4: .dockerignore を作成
 
 **Files:**
+
 - Create: `.dockerignore`
 
 **目的:** Docker ビルドコンテキストから不要なファイルを除外。ビルド時間を短縮
 
 - [ ] **Step 1: .dockerignore を作成**
 
-```
+```text
 node_modules
 .git
 .gitignore
@@ -377,6 +385,7 @@ Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
 ### Task 5: .env.local.example を作成
 
 **Files:**
+
 - Create: `.env.local.example`
 
 **目的:** 環境変数のテンプレート。開発者が設定時に参考にする
@@ -430,6 +439,7 @@ Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
 ### Task 6: scripts/init-docker.sh を作成
 
 **Files:**
+
 - Create: `scripts/init-docker.sh`
 
 **目的:** Docker セットアップと起動を自動化するスクリプト
@@ -503,6 +513,7 @@ Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
 ### Task 7: SQLite 永続化ディレクトリの初期化
 
 **Files:**
+
 - Create: `data/.gitkeep`
 
 **目的:** SQLite データベースファイルを永続化するディレクトリを git で追跡可能にする
@@ -532,6 +543,7 @@ Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
 ### Task 8: セットアップ検証と動作確認
 
 **Files:**
+
 - Verify: `compose.dev.yaml`
 - Verify: `next-app/dev.Dockerfile`
 - Verify: `scripts/init-docker.sh`
@@ -546,7 +558,8 @@ docker compose version
 ```
 
 **Expected output:**
-```
+
+```text
 Docker version 20.10.0+
 Docker Compose version 1.29.0+
 ```
@@ -578,7 +591,8 @@ timeout 30 docker compose -f compose.dev.yaml up || true
 ```
 
 **Expected:** コンテナが起動し、以下のログが表示される：
-```
+
+```text
 next-app | > next-pyon-tomaki-app@0.1.0 dev
 next-app | > next dev
 next-app | ▲ Next.js 14.x.x
@@ -661,4 +675,3 @@ docker compose -f compose.dev.yaml exec next-app pnpm prisma migrate status
 
 1. **Subagent-Driven（推奨）** - タスクごとに独立した subagent で実行、タスク間でレビュー
 2. **Inline Execution** - 当セッションで executing-plans で実行、checkpoint ごとにレビュー
-

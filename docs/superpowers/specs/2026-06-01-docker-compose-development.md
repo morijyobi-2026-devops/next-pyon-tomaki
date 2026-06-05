@@ -65,7 +65,7 @@ next-pyon-tomaki/
 
 ### 1. **compose.dev.yaml**
 
-```yaml
+```text
 version: "3.8"
 
 services:
@@ -126,7 +126,7 @@ networks:
 
 ### 2. **next-app/dev.Dockerfile**
 
-```Dockerfile
+```text
 # syntax=docker.io/docker/dockerfile:1
 
 FROM node:24-alpine
@@ -158,9 +158,8 @@ CMD sh -c "pnpm prisma migrate deploy && pnpm dev"
 
 ### 3. **.env.local.example**
 
-```bash
+```env
 # Database
-```
 DATABASE_URL="file:./data/dev.db"
 
 # Google OAuth
@@ -180,11 +179,9 @@ SCHOOL_EMAIL_DOMAIN=@school.ac.jp
 ADMIN_EMAILS=admin1@school.ac.jp,admin2@school.ac.jp
 ```
 
-```bash
-
 ### 4. **.dockerignore**
 
-```
+```text
 node_modules
 .git
 .gitignore
