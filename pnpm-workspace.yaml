@@ -1,4 +1,5 @@
-packages: []
+packages:
+  - "next-app"
 
 settings:
   minimumReleaseAge: 2880
