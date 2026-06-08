@@ -9,7 +9,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "migrate": "prisma migrate deploy"
+    "migrate": "prisma migrate deploy --schema ../prisma/schema.prisma"
   },
   "dependencies": {
     "@prisma/client": "^5.0.0",
