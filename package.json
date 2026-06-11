@@ -7,7 +7,10 @@
     "node": ">=22.0.0",
     "pnpm": ">=9.0.0"
   },
-  "scripts": {},
+  "scripts": {
+    "lint": "markdownlint-cli2 \"README.md\" \"docs/**/*.md\" && pnpm --filter next-pyon-tomaki-app lint",
+    "build": "pnpm --filter next-pyon-tomaki-app build"
+  },
   "lint-staged": {
     "*.md": "markdownlint-cli2"
   },
