@@ -7,7 +7,6 @@ generator client {
 
 datasource db {
   provider = "sqlite"  // Development; Cloudflare D1 対応
-  url      = env("DATABASE_URL")
 }
 
 model User {
