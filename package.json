@@ -2,7 +2,7 @@
   "name": "next-pyon-tomaki",
   "version": "1.0.0",
   "description": "Documentation and linting setup for next-pyon-tomaki",
-  "packageManager": "pnpm@11.5.0",
+  "packageManager": "pnpm@11.5.3",
   "engines": {
     "node": ">=22.0.0",
     "pnpm": ">=9.0.0"
@@ -18,9 +18,9 @@
     "husky": "^9.1.7",
     "lint-staged": "^17.0.5",
     "markdownlint-cli2": "^0.22.0",
-    "prisma": "^5.22.0"
+    "prisma": "^7.0.0"
   },
   "dependencies": {
-    "@prisma/client": "^5.0.0"
+    "@prisma/client": "^7.0.0"
   }
 }
