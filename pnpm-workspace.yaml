@@ -11,7 +11,7 @@ settings:
 
 # サプライチェーンポリシーを回避するためのバージョン固定設定
 overrides:
-  electron-to-chromium: 1.5.368
+  electron-to-chromium: 1.5.371
 
 # ビルドスクリプト（postinstall 等）の実行可否を明示する。
 # create-next-app が next-pyon 側に生成していた設定をルートに統合した。
