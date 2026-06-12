@@ -16,6 +16,7 @@ RUN pnpm install --frozen-lockfile
 
 # Copy configuration files
 COPY next-pyon/tsconfig.json next-pyon/next.config.js ./next-pyon/
+COPY prisma.config.ts ./
 
 # Copy Prisma schema
 COPY prisma ./prisma
