@@ -18,8 +18,8 @@ description = "Install workspace dependencies"
 run = "pnpm install"
 
 [tasks.lint]
-description = "Run markdown linting"
-run = "npx markdownlint-cli2 \"README.md\" \"docs/**/*.md\""
+description = "Run all linters (markdownlint + eslint)"
+run = "pnpm run lint"
 
 [tasks.format]
 description = "Run Next.js linter"

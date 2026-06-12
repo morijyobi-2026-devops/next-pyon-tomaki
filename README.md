@@ -18,10 +18,11 @@
 
 ## 技術スタック
 
-- **フロントエンド** - React 18 + TypeScript + Vite
-- **バックエンド** - Node.js + Express
-- **データベース** - SQLite3
+- **フロントエンド / バックエンド** - Next.js 16 (App Router) + TypeScript
+- **UI** - React 19 + Tailwind CSS v4
+- **データベース** - SQLite (Prisma ORM)
 - **認証** - Google OAuth 2.0
+- **インフラ** - Docker / Docker Compose
 
 ## ドキュメント
 
@@ -30,4 +31,4 @@
 
 ## 更新日
 
-2026-05-14
+2026-06-12

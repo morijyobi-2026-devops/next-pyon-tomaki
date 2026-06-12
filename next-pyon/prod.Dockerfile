@@ -23,6 +23,8 @@ COPY --from=deps /app/next-pyon/node_modules ./next-pyon/node_modules
 COPY . .
 
 # Generate Prisma client
+# DATABASE_URL はビルド時に実際の接続は不要だが、schema の env() 参照解決のためダミー値を渡す
+ENV DATABASE_URL="file:/tmp/dummy.db"
 RUN pnpm prisma generate --schema ./prisma/schema.prisma
 
 # Next.js telemetry disable
