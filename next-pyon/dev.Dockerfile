@@ -21,8 +21,9 @@ COPY next-pyon/tsconfig.json next-pyon/next.config.js ./next-pyon/
 COPY prisma ./prisma
 
 # Generate Prisma client
-# Note: build-time generation for development environment (runtime env injection via Docker Compose)
-RUN pnpm prisma generate --schema ./prisma/schema.prisma || echo "Prisma generation completed with warnings"
+# DATABASE_URL はビルド時に実際の接続は不要だが、schema の env() 参照解決のためダミー値を渡す
+# 実際の DB 接続は Docker Compose 経由でコンテナ起動時に注入される
+RUN DATABASE_URL="file:/tmp/dummy.db" pnpm prisma generate --schema ./prisma/schema.prisma
 
 # Copy source code
 COPY next-pyon/src ./next-pyon/src
