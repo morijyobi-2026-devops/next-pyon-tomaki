@@ -1,6 +1,6 @@
 # syntax=docker.io/docker/dockerfile:1
 
-FROM node:24-alpine AS base
+FROM node:24.16.0-alpine AS base
 RUN corepack enable pnpm
 
 # 1. Install dependencies only when needed
@@ -30,6 +30,10 @@ RUN pnpm prisma generate --schema ./prisma/schema.prisma
 # Next.js telemetry disable
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Environment variables must be present at build time
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+
 RUN pnpm --filter next-pyon-tomaki-app build
 
 # 3. Production runner
@@ -56,6 +60,10 @@ RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
 USER nextjs
 
 EXPOSE 3000
+
+# Environment variables must be redefined at run time
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"

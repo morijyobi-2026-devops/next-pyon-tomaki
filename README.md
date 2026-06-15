@@ -24,6 +24,42 @@
 - **認証** - Google OAuth 2.0
 - **インフラ** - Docker / Docker Compose
 
+## 開発・実行環境 (Docker Compose)
+
+本プロジェクトでは Docker Compose を使用して、開発環境および本番環境のビルド・実行が可能です。
+
+### 事前準備
+
+コンテナ間の通信を確立するため、共通ネットワーク `my_network` を事前に作成してください。
+
+```bash
+docker network create my_network
+```
+
+### 開発環境の起動 (ホットリロード対応)
+
+開発用コンテナをビルドおよび起動します。ホスト側のソースコードの変更はホットリロードにより即座に反映されます。
+
+```bash
+# ビルド
+docker compose -f compose.dev.yaml build
+
+# 起動
+docker compose -f compose.dev.yaml up
+```
+
+### 本番環境の起動 (マルチステージビルド / Standalone出力)
+
+Next.js の `standalone` モードビルドを利用した、軽量な本番用イメージのビルドおよび起動を行います。
+
+```bash
+# ビルド (ビルド時に埋め込む環境変数を引き渡します)
+docker compose -f compose.prod.yaml build
+
+# 起動 (バックグラウンドで起動)
+docker compose -f compose.prod.yaml up -d
+```
+
 ## ドキュメント
 
 - [設計仕様](docs/superpowers/specs/2026-04-30-classroom-navigation-design.md) - ver0.1 の完全な要件定義
@@ -31,4 +67,4 @@
 
 ## 更新日
 
-2026-06-12
+2026-06-15

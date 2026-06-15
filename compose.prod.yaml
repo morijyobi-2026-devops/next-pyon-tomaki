@@ -6,12 +6,14 @@ services:
     build:
       context: .
       dockerfile: next-pyon/prod.Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3000}
     
     environment:
       NODE_ENV: production
       NEXT_TELEMETRY_DISABLED: 1
       DATABASE_URL: file:/app/data/prod.db
-      NEXT_PUBLIC_API_URL: http://localhost:3000
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3000}
       SCHOOL_EMAIL_DOMAIN: ${SCHOOL_EMAIL_DOMAIN:-@school.ac.jp}
       ADMIN_EMAILS: ${ADMIN_EMAILS:-admin@school.ac.jp}
     
@@ -33,5 +35,4 @@ services:
 
 networks:
   my_network:
-    external: false
-    driver: bridge
+    external: true
