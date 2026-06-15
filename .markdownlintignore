@@ -1,1 +1,5 @@
 node_modules/
+with-docker-compose-app/
+with-docker-compose-app
+with-docker-compose-app/**
+**/with-docker-compose-app/**
