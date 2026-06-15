@@ -13,7 +13,7 @@ settings:
 overrides:
   electron-to-chromium: 1.5.371
   "@napi-rs/wasm-runtime": "1.1.5"
-  "axe-core": "4.12.0"
+  "axe-core": "4.12.1"
   "es-iterator-helpers": "1.3.2"
 
 # ビルドスクリプト（postinstall 等）の実行可否を明示する。
