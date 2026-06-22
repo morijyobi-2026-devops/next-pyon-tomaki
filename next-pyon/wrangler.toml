@@ -1,0 +1,21 @@
+name = "next-pyon"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".open-next"
+
+[vars]
+NEXT_PUBLIC_API_URL = "https://next-pyon.pages.dev"
+# Google Workspace OAuth configurations will be added here
+
+[[d1_databases]]
+binding = "DB"
+database_name = "next-pyon-prod"
+database_id = "PLACEHOLDER_PROD_D1_ID"
+migrations_dir = "../prisma/migrations"
+
+[env.preview]
+[[env.preview.d1_databases]]
+binding = "DB"
+database_name = "next-pyon-stage"
+database_id = "PLACEHOLDER_STAGE_D1_ID"
+migrations_dir = "../prisma/migrations"
