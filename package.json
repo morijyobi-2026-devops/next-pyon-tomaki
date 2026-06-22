@@ -2,7 +2,7 @@
   "name": "next-pyon-tomaki",
   "version": "1.0.0",
   "description": "Documentation and linting setup for next-pyon-tomaki",
-  "packageManager": "pnpm@11.8.0",
+  "packageManager": "pnpm@11.7.0",
   "engines": {
     "node": ">=22.0.0",
     "pnpm": ">=9.0.0"
