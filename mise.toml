@@ -3,7 +3,7 @@ node = "24.16.0"
 
 [tasks.dev]
 description = "Start the Next.js development server (using Docker Compose) [Shortcut for docker:dev:run]"
-run = "docker compose -f compose.dev.yaml up"
+depends = ["docker:dev:run"]
 
 [tasks.dev-local]
 description = "Start the Next.js development server locally (without container)"
@@ -25,13 +25,30 @@ run = "pnpm run lint"
 description = "Run Next.js linter"
 run = "pnpm --filter ./next-pyon lint"
 
+[tasks."docker:network"]
+description = "Create the shared docker network if it doesn't exist"
+run = "docker network create my_network 2>/dev/null || true"
+
 [tasks."docker:dev:build"]
 description = "Build the development Docker image"
 run = "docker compose -f compose.dev.yaml build"
 
 [tasks."docker:dev:run"]
 description = "Start the development Docker containers"
+depends = ["docker:network"]
 run = "docker compose -f compose.dev.yaml up"
+
+[tasks."docker:dev:down"]
+description = "Stop the development Docker containers"
+run = "docker compose -f compose.dev.yaml down"
+
+[tasks."docker:dev:clean"]
+description = "Stop development containers and remove volumes"
+run = "docker compose -f compose.dev.yaml down -v"
+
+[tasks."docker:dev:logs"]
+description = "Tail development container logs"
+run = "docker compose -f compose.dev.yaml logs -f"
 
 [tasks."docker:prod:build"]
 description = "Build the production Docker image"
@@ -39,4 +56,17 @@ run = "docker compose -f compose.prod.yaml build"
 
 [tasks."docker:prod:run"]
 description = "Start the production Docker containers"
-run = "docker compose -f compose.prod.yaml up"
+depends = ["docker:network"]
+run = "docker compose -f compose.prod.yaml up -d"
+
+[tasks."docker:prod:down"]
+description = "Stop the production Docker containers"
+run = "docker compose -f compose.prod.yaml down"
+
+[tasks."docker:prod:clean"]
+description = "Stop production containers and remove volumes"
+run = "docker compose -f compose.prod.yaml down -v"
+
+[tasks."docker:prod:logs"]
+description = "Tail production container logs"
+run = "docker compose -f compose.prod.yaml logs -f"
