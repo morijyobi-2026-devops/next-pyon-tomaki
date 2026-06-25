@@ -4,6 +4,7 @@
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["driverAdapters"]
+  output          = "../next-pyon/node_modules/.prisma/client"
 }
 
 datasource db {
