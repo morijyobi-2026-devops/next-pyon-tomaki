@@ -19,3 +19,6 @@ binding = "DB"
 database_name = "next-pyon-stage"
 database_id = "54b0218d-ab55-4c41-8a57-a08ffc14d038"
 migrations_dir = "../prisma/migrations"
+
+[env.preview.vars]
+NEXT_PUBLIC_API_URL = "https://next-pyon.pages.dev"
