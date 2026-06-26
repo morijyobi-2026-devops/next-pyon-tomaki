@@ -6,3 +6,6 @@ node_modules/
 
 # multi-agent-shogun
 multi-agent-shogun/
+
+# SQLite database
+data/
