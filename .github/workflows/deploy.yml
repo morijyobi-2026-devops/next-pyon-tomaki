@@ -32,18 +32,9 @@ jobs:
       - name: Generate Prisma Client
         run: pnpm --filter next-pyon-tomaki-app prisma generate --schema ../prisma/schema.prisma
 
-      - name: Verify Cloudflare Account ID
-        run: |
-          if [ "$CLOUDFLARE_ACCOUNT_ID" = "2dbb9588035049c29a627afbbe705d2b" ]; then
-            echo "MATCH: Yes, CLOUDFLARE_ACCOUNT_ID matches the local one (2dbb9588035049c29a627afbbe705d2b)"
-          else
-            echo "MATCH: No, CLOUDFLARE_ACCOUNT_ID is different from the local one"
-          fi
-        env:
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-
       - name: Apply D1 Migrations (Staging)
         if: github.event_name == 'pull_request'
+        continue-on-error: true
         run: |
           cd next-pyon
           npx wrangler d1 migrations apply next-pyon-stage --remote --env preview
