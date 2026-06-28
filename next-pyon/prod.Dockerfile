@@ -1,6 +1,6 @@
 # syntax=docker.io/docker/dockerfile:1
 
-FROM node:24.17.0-alpine AS base
+FROM node:24.18.0-alpine AS base
 RUN corepack enable pnpm
 
 # 1. Install dependencies only when needed
