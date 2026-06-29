@@ -62,6 +62,7 @@ jobs:
           path: next-pyon/.open-next
           retention-days: 1
           if-no-files-found: error
+          include-hidden-files: true
 
   docker:
     needs: build
