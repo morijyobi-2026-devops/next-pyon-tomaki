@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#MISE description="next-pyon を ESLint でチェックする"
+set -euo pipefail
+cd "$MISE_PROJECT_ROOT"
+exec pnpm --filter next-pyon lint "$@"

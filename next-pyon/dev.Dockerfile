@@ -1,38 +1,29 @@
 # syntax=docker.io/docker/dockerfile:1
 
+# 開発用イメージ。ビルドコンテキストはリポジトリルート（pnpm workspace のため）。
 FROM node:24.17.0-alpine
 
 WORKDIR /app
 
-# Install pnpm globally
+# husky の git hook セットアップを無効化（コンテナ内に .git は無い）
+ENV HUSKY=0
+ENV NEXT_TELEMETRY_DISABLED=1
+
 RUN corepack enable pnpm
 
-# Copy package files for workspace
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+# 依存解決に必要なファイルだけ先にコピーしてレイヤーキャッシュを効かせる
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
 COPY next-pyon/package.json ./next-pyon/
+# install 後、同じレイヤー内で pnpm ストア/キャッシュを削除してイメージを縮める。
+# node_modules はハードリンクで実体が残るため壊れない（1.11GB -> 826MB）。
+RUN pnpm install --frozen-lockfile \
+  && rm -rf /root/.cache /root/.local/share/pnpm/store
 
-# Install dependencies with frozen lockfile
-RUN pnpm install --frozen-lockfile
+# アプリのソース。compose では bind mount で上書きされる（ホットリロード用）。
+COPY next-pyon ./next-pyon
 
-# Copy configuration files
-COPY next-pyon/tsconfig.json next-pyon/next.config.js ./next-pyon/
-COPY prisma.config.ts ./
+WORKDIR /app/next-pyon
 
-# Copy Prisma schema
-COPY prisma ./prisma
-
-# Generate Prisma client
-# DATABASE_URL はビルド時に実際の接続は不要だが、schema の env() 参照解決のためダミー値を渡す
-# 実際の DB 接続は Docker Compose 経由でコンテナ起動時に注入される
-RUN DATABASE_URL="file:/tmp/dummy.db" pnpm prisma generate --schema ./prisma/schema.prisma
-
-# Copy source code
-COPY next-pyon/src ./next-pyon/src
-COPY next-pyon/public ./next-pyon/public
-
-# Expose port 3000
 EXPOSE 3000
 
-# Start development server with Prisma migration
-# set -e ensures errors propagate and stop execution immediately
-CMD ["sh", "-c", "set -e; pnpm prisma migrate deploy --schema ./prisma/schema.prisma && pnpm --filter next-pyon-tomaki-app dev"]
+CMD ["pnpm", "dev"]

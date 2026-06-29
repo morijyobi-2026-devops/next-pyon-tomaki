@@ -1,70 +1,32 @@
-# next-pyon-tomaki
+# next-pyon-suzuryo
 
-## プロジェクト概要
+next-pyon-suzuryo
 
-学校の時間割から「次にどの教室へ行けばよいか」をすぐに確認できる個人用アプリケーション。
+更新日: 2026-05-21
 
-学生は Google Workspace アカウントでログイン後、授業一覧から自分の履修授業を選択します。選択結果から個人用カレンダーが自動生成され、ホーム画面では現在時刻に応じて「次に行くべき教室」が大きく表示されます。
+## Markdown lint
 
-授業が終了する 10 分前には自動的に次の授業が優先表示されるため、毎回時間割表を確認する手間が不要になります。
+1. `mise install`
+   - `mise.toml` に従って Node.js 24.15.0 と pnpm 10.33.0 を用意します。
+2. `pnpm install`
+   - `prepare` script で husky が実行され、`pre-commit` hook が設定されます。
+3. `pnpm run lint`
+   - 現在は `pnpm run lint:md` を呼び出し、`README.md` と `docs/**/*.md` をまとめて確認できます。
 
-## 主な機能（ver0.1）
+## Commit-time auto-check
 
-- **Google Workspace ログイン** - 学校ドメインのアカウントで認証
-- **履修授業選択** - 授業一覧から自分の時間割を構成
-- **個人用カレンダー生成** - 選択した授業から週間予定を自動作成
-- **次の教室案内** - 時刻に応じて次の移動先を優先表示
-- **管理者向け授業マスタ管理** - 許可されたユーザーが授業情報を登録・編集
+- commit 時は husky の `pre-commit` から、ローカルに固定された `./node_modules/.bin/lint-staged` が実行されます。
+- hook を直接確認する場合も、先に `pnpm install` を実行してローカル依存関係をそろえてください。
+- staged された `.md` ファイルだけが `markdownlint-cli2` で検査されます。
+- markdownlint が失敗した場合、commit は中断されます。
 
-## 技術スタック
+## GitHub Actions
 
-- **フロントエンド / バックエンド** - Next.js 16 (App Router) + TypeScript
-- **UI** - React 19 + Tailwind CSS v4
-- **データベース** - SQLite (Prisma ORM)
-- **認証** - Google OAuth 2.0
-- **インフラ** - Docker / Docker Compose
+- `.github/workflows/lint.yml` で `pull_request` と `push` を契機に lint を実行します。
+- GitHub Actions でも Node.js 24.15.0 を使い、pnpm 10.33.0 の `minimumReleaseAge` を 2880 分（2 日）に設定した上で `pnpm install --frozen-lockfile` の後に `pnpm run lint` を実行します。
+- CI では lint・build・docker に加え OpenNext ビルド検証も実行します。
+- Cloudflare へのデプロイは Cloudflare Workers Builds（Git ネイティブ連携）が担当するため、GitHub に API トークンは登録しません。詳細は [`next-pyon/README.md`](next-pyon/README.md) を参照してください。
 
-## 開発・実行環境 (Docker Compose)
+## GitHub 運用
 
-本プロジェクトでは Docker Compose を使用して、開発環境および本番環境のビルド・実行が可能です。
-
-### 事前準備
-
-コンテナ間の通信を確立するため、共通ネットワーク `my_network` を事前に作成してください。
-
-```bash
-docker network create my_network
-```
-
-### 開発環境の起動 (ホットリロード対応)
-
-開発用コンテナをビルドおよび起動します。ホスト側のソースコードの変更はホットリロードにより即座に反映されます。
-
-```bash
-# ビルド
-docker compose -f compose.dev.yaml build
-
-# 起動
-docker compose -f compose.dev.yaml up
-```
-
-### 本番環境の起動 (マルチステージビルド / Standalone出力)
-
-Next.js の `standalone` モードビルドを利用した、軽量な本番用イメージのビルドおよび起動を行います。
-
-```bash
-# ビルド (ビルド時に埋め込む環境変数を引き渡します)
-docker compose -f compose.prod.yaml build
-
-# 起動 (バックグラウンドで起動)
-docker compose -f compose.prod.yaml up -d
-```
-
-## ドキュメント
-
-- [設計仕様](docs/superpowers/specs/2026-04-30-classroom-navigation-design.md) - ver0.1 の完全な要件定義
-- [実装計画](docs/superpowers/plans/2026-05-14-implementation.md) - 15 タスク分解、5 フェーズ構成
-
-## 更新日
-
-2026-06-15
+- Issue と Pull Request は日本語で記載します。

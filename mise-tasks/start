@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#MISE description="next-pyon のビルド成果物を起動する"
+set -euo pipefail
+cd "$MISE_PROJECT_ROOT"
+exec pnpm --filter next-pyon start "$@"

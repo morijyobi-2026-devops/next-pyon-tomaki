@@ -15,12 +15,4 @@
 
   // Avoid immediately consuming freshly published releases.
   "minimumReleaseAge": "3 days",
-
-  // Avoid upgrading eslint to v10 due to compatibility issues with next.js
-  "packageRules": [
-    {
-      "matchPackageNames": ["eslint"],
-      "allowedVersions": "<10.0.0"
-    }
-  ],
 }
