@@ -46,6 +46,15 @@ jobs:
           cd next-pyon
           pnpm run cf:build
 
+      - name: Debug - Find .open-next directory
+        run: |
+          echo "=== Finding .open-next ==="
+          find . -name ".open-next"
+          echo "=== Root directory ==="
+          ls -la
+          echo "=== next-pyon directory ==="
+          ls -la next-pyon || true
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
