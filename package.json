@@ -1,26 +1,24 @@
 {
-  "name": "next-pyon-tomaki",
-  "version": "1.0.0",
-  "description": "Documentation and linting setup for next-pyon-tomaki",
-  "packageManager": "pnpm@11.9.0",
+  "name": "next-pyon-suzuryo-tooling",
+  "private": true,
   "engines": {
-    "node": ">=22.0.0",
-    "pnpm": ">=9.0.0"
+    "node": "24.17.0"
   },
   "scripts": {
-    "lint": "markdownlint-cli2 \"README.md\" \"docs/**/*.md\" && pnpm --filter next-pyon-tomaki-app lint",
-    "build": "pnpm --filter next-pyon-tomaki-app build"
-  },
-  "lint-staged": {
-    "*.md": "markdownlint-cli2"
+    "prepare": "husky",
+    "lint": "pnpm run lint:md && pnpm run lint:app",
+    "lint:md": "markdownlint-cli2 \"README.md\" \"next-pyon/README.md\" \"docs/**/*.md\"",
+    "lint:app": "pnpm --filter next-pyon lint",
+    "build": "pnpm run build:app",
+    "build:app": "pnpm --filter next-pyon build"
   },
   "devDependencies": {
-    "husky": "^9.1.7",
-    "lint-staged": "^17.0.5",
-    "markdownlint-cli2": "^0.22.0",
-    "prisma": "^7.0.0"
+    "husky": "9.1.7",
+    "lint-staged": "17.0.8",
+    "markdownlint-cli2": "0.22.1"
   },
-  "dependencies": {
-    "@prisma/client": "^7.0.0"
+  "lint-staged": {
+    "*.md": "markdownlint-cli2",
+    "next-pyon/**/*.{js,jsx,ts,tsx}": "pnpm --filter next-pyon exec eslint"
   }
 }

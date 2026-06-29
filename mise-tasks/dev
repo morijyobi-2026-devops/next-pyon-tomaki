@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#MISE description="next-pyon の開発サーバーを起動する (http://localhost:3000)"
+set -euo pipefail
+cd "$MISE_PROJECT_ROOT"
+exec pnpm --filter next-pyon dev "$@"

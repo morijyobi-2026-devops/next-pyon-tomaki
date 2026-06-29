@@ -1,38 +1,15 @@
-version: "3.8"
+name: next-pyon-prod
 
 services:
-  next-pyon-prod:
-    container_name: next-pyon-tomaki-prod
+  app:
+    container_name: next-pyon-app-prod
     build:
       context: .
       dockerfile: next-pyon/prod.Dockerfile
-      args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3000}
-    
-    environment:
-      NODE_ENV: production
-      NEXT_TELEMETRY_DISABLED: 1
-      DATABASE_URL: file:/app/data/prod.db
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3000}
-      SCHOOL_EMAIL_DOMAIN: ${SCHOOL_EMAIL_DOMAIN:-@school.ac.jp}
-      ADMIN_EMAILS: ${ADMIN_EMAILS:-admin@school.ac.jp}
-    
+    # .env があれば読み込む（無くてもエラーにしない）
     env_file:
-      - .env.local
-    
-    volumes:
-      # For production, we don't bind-mount the source code (it's inside the image).
-      # We only mount the data directory for SQLite persistence.
-      - ./data:/app/data
-    
+      - path: .env
+        required: false
+    restart: unless-stopped
     ports:
       - "3000:3000"
-    
-    restart: always
-    
-    networks:
-      - my_network
-
-networks:
-  my_network:
-    external: true

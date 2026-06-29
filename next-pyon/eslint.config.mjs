@@ -1,15 +1,21 @@
+import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
+import nextTs from "eslint-config-next/typescript";
 
-const eslintConfig = [
-  {
-    ignores: [
-      ".next/**",
-      "node_modules/**",
-      "out/**",
-      "dist/**",
-    ],
-  },
+const eslintConfig = defineConfig([
   ...nextVitals,
-];
+  ...nextTs,
+  // Override default ignores of eslint-config-next.
+  globalIgnores([
+    // Default ignores of eslint-config-next:
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+    // OpenNext / wrangler の生成物（バンドル済みのため lint 対象外）:
+    ".open-next/**",
+    ".wrangler/**",
+  ]),
+]);
 
 export default eslintConfig;

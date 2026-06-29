@@ -1,72 +1,45 @@
 # syntax=docker.io/docker/dockerfile:1
 
-FROM node:24.18.0-alpine AS base
+# 本番用イメージ。ビルドコンテキストはリポジトリルート（pnpm workspace のため）。
+FROM node:24.17.0-alpine AS base
 RUN corepack enable pnpm
+ENV HUSKY=0
+ENV NEXT_TELEMETRY_DISABLED=1
 
-# 1. Install dependencies only when needed
-FROM base AS deps
-RUN apk add --no-cache libc6-compat
-WORKDIR /app
-
-# Copy package files for workspace
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY next-pyon/package.json ./next-pyon/
-
-# Install dependencies with frozen lockfile
-RUN pnpm install --frozen-lockfile
-
-# 2. Rebuild the source code only when needed
+# Step 1. 依存解決とビルド
 FROM base AS builder
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/next-pyon/node_modules ./next-pyon/node_modules
-COPY . .
 
-# Generate Prisma client
-# DATABASE_URL はビルド時に実際の接続は不要だが、schema の env() 参照解決のためダミー値を渡す
-ENV DATABASE_URL="file:/tmp/dummy.db"
-RUN pnpm prisma generate --schema ./prisma/schema.prisma
+# 依存解決に必要なファイルだけ先にコピーしてレイヤーキャッシュを効かせる
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+COPY next-pyon/package.json ./next-pyon/
+RUN pnpm install --frozen-lockfile
 
-# Next.js telemetry disable
-ENV NEXT_TELEMETRY_DISABLED=1
+COPY next-pyon ./next-pyon
+# next.config.ts はこのフラグがある時だけ standalone 出力を有効にする
+ENV BUILD_STANDALONE=1
+RUN pnpm --filter next-pyon build
 
-# Environment variables must be present at build time
-ARG NEXT_PUBLIC_API_URL
-ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
-
-RUN pnpm --filter next-pyon-tomaki-app build
-
-# 3. Production runner
-FROM base AS runner
+# Step 2. 本番イメージ。standalone 出力だけをコピーして軽量化する。
+FROM node:24.17.0-alpine AS runner
 WORKDIR /app
-
 ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+# root では実行しない
+RUN addgroup -S -g 1001 nodejs \
+  && adduser -S -u 1001 -G nodejs nextjs
 
-# Copy static assets and standalone build
-COPY --from=builder /app/next-pyon/public ./next-pyon/public
+# outputFileTracingRoot をリポジトリルートにしているため、
+# standalone は next-pyon/ のディレクトリ構造を保持して出力される。
 COPY --from=builder --chown=nextjs:nodejs /app/next-pyon/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/next-pyon/.next/static ./next-pyon/.next/static
-
-# Copy Prisma schema and migrations (for reference or manual migrations if needed)
-COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
-
-# Create directory for SQLite database if used locally in production mode
-RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
 
 USER nextjs
 
 EXPOSE 3000
 
-# Environment variables must be redefined at run time
-ARG NEXT_PUBLIC_API_URL
-ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
-
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
-
-# Start Next.js server using standalone output
+# ポートは compose 側で公開する
 CMD ["node", "next-pyon/server.js"]

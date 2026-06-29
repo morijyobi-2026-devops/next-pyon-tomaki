@@ -1,38 +1,23 @@
-version: "3.8"
+name: next-pyon-dev
 
 services:
-  next-pyon:
-    container_name: next-pyon-tomaki-dev
+  app:
+    container_name: next-pyon-app-dev
     build:
       context: .
       dockerfile: next-pyon/dev.Dockerfile
-    
-    environment:
-      NODE_ENV: development
-      NEXT_TELEMETRY_DISABLED: 1
-      DATABASE_URL: file:/app/data/dev.db
-      NEXT_PUBLIC_API_URL: http://localhost:3000
-      SCHOOL_EMAIL_DOMAIN: ${SCHOOL_EMAIL_DOMAIN:-@school.ac.jp}
-      ADMIN_EMAILS: ${ADMIN_EMAILS:-admin@school.ac.jp}
-    
+    # .env があれば読み込む（無くてもエラーにしない）
     env_file:
-      - .env.local
-    
+      - path: .env
+        required: false
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
     volumes:
-      - .:/app
+      # ソースを bind mount してホットリロードを効かせる
+      - ./next-pyon:/app/next-pyon
+      # node_modules / .next はコンテナ内のものを保持する
+      # （ホスト macOS のバイナリでコンテナ内 Linux 用依存を上書きしないため）
       - /app/node_modules
       - /app/next-pyon/node_modules
       - /app/next-pyon/.next
-      - ./data:/app/data
-    
-    ports:
-      - "3000:3000"
-    
-    restart: "no"
-    
-    networks:
-      - my_network
-
-networks:
-  my_network:
-    external: true
