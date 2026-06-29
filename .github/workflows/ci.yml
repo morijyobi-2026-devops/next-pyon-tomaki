@@ -37,17 +37,22 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build Next.js App
-        run: pnpm run build
+        run: |
+          cd next-pyon
+          pnpm run build
 
       - name: Build (OpenNext for Cloudflare)
-        run: pnpm --filter next-pyon cf:build
+        run: |
+          cd next-pyon
+          pnpm run cf:build
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: open-next-build
-          path: next-pyon/.open-next/
+          path: next-pyon/.open-next
           retention-days: 1
+          if-no-files-found: error
 
   docker:
     needs: build

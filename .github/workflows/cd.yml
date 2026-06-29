@@ -30,10 +30,14 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       - name: Build Next.js App
-        run: pnpm run build
+        run: |
+          cd next-pyon
+          pnpm run build
 
       - name: Build (OpenNext for Cloudflare)
-        run: pnpm --filter next-pyon cf:build
+        run: |
+          cd next-pyon
+          pnpm run cf:build
 
       - name: Deploy to Cloudflare Pages (Production)
         run: |
