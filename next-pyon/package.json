@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Next.js application for next-pyon-tomaki",
   "private": true,
-  "packageManager": "pnpm@11.8.0",
+  "packageManager": "pnpm@11.9.0",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
