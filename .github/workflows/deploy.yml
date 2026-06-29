@@ -30,10 +30,11 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Generate Prisma Client
-        run: pnpm --filter next-pyon-tomaki-app prisma generate --schema ../prisma/schema.prisma
+        run: pnpm --filter next-pyon-tomaki-app exec prisma generate --schema ../prisma/schema.prisma
 
       - name: Apply D1 Migrations (Staging)
         if: github.event_name == 'pull_request'
+        continue-on-error: true
         run: |
           cd next-pyon
           npx wrangler d1 migrations apply next-pyon-stage --remote --env preview

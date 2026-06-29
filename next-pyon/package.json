@@ -7,10 +7,11 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:cloudflare": "opennextjs-cloudflare",
+    "build:cloudflare": "opennextjs-cloudflare build",
     "start": "next start",
     "lint": "eslint .",
-    "migrate": "prisma migrate deploy --schema ../prisma/schema.prisma"
+    "migrate": "prisma migrate deploy --schema ../prisma/schema.prisma",
+    "prisma": "prisma"
   },
   "dependencies": {
     "@prisma/adapter-d1": "^7.0.0",

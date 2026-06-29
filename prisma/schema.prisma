@@ -52,3 +52,10 @@ model Enrollment {
   @@unique([userId, classId])
   @@map("enrollments")
 }
+
+model Counter {
+  id    Int @id @default(1)
+  count Int @default(0)
+
+  @@map("counters")
+}
