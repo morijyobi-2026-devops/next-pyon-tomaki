@@ -50,7 +50,7 @@ mise run docker:down         # dev / prod のコンテナを停止・削除
 
 ## Cloudflare
 
-OpenNext（`@opennextjs/cloudflare`）を使って Cloudflare Workers 向けにビルド・
+OpenNext（`@opennextjs/cloudflare`）を使って Cloudflare Pages 向けにビルド・
 デプロイするためのタスクをまとめてある。
 
 ```bash
@@ -59,40 +59,35 @@ mise run cf:preview  # workerd でローカル起動（http://localhost:8787）
 mise run cf:deploy   # 手動デプロイ（要 wrangler login）
 ```
 
-### デプロイの仕組み（Cloudflare Workers Builds）
+### デプロイの仕組み（GitHub Actions 連携）
 
-デプロイは **Cloudflare Workers Builds** のネイティブ連携で自動化されている。
-GitHub に API トークンは登録しない。
+デプロイは GitHub Actions ワークフロー（`ci.yml` / `cd.yml`）によって自動化されている。
 
-- PR 作成・更新 → Cloudflare が `wrangler versions upload` でプレビュー URL を生成し、
-  PR にコメント（ステージング）。
-- main へ merge → Cloudflare が `wrangler deploy` で本番に反映。
+- **プレビューデプロイ (Staging)**
+  - PR 作成・更新時に `ci.yml` が走り、ビルドした `.open-next` 成果物を GitHub Actions が `wrangler pages deploy` で Cloudflare Pages のプレビュー環境へデプロイします。
+  - デプロイ完了後、プレビュー URL が自動で PR にコメントされます。
+- **本番デプロイ (Production)**
+  - `main` ブランチへマージされた際に `cd.yml` が走り、本番 D1 データベースへのマイグレーション適用後、本番環境へデプロイされます。
 
-### Cloudflare 側セットアップ（一度きり）
+### セットアップ（一度きり）
 
-リポジトリに初めて Cloudflare 連携を行う際の手順。
-順序は リポジトリ連携 → ビルド/ブランチ設定 → 初回デプロイ。
+プロジェクトを初めて Cloudflare にデプロイする際の手順。
 
-1. **リポジトリ連携** — Cloudflare ダッシュボードの Workers Builds から
-   GitHub App 連携（OAuth 認可）でこのリポジトリを追加する。
+1. **Cloudflare アカウントの準備**
+   - Cloudflare のアカウントを用意し、アカウント ID を取得します。
+   - Cloudflare Pages の管理画面から、空の Pages プロジェクト `next-pyon` を作成します（または初回デプロイ時に自動作成されます）。
 
-2. **ビルド / ブランチ設定** — Workers Builds のビルド設定画面で以下の通り設定する。
+2. **API トークンの発行**
+   - Cloudflare のダッシュボードから、以下の権限を持つ API トークンを発行します。
+     - `Cloudflare Pages: 編集`
+     - `D1: 編集`
 
-   - Root directory = リポジトリルート
-   - Build command = `pnpm --filter next-pyon exec opennextjs-cloudflare build`
-   - 本番 Deploy command = `pnpm --filter next-pyon exec wrangler deploy`
-   - 非本番 Deploy command = `pnpm --filter next-pyon exec wrangler versions upload`
-   - Production branch = `main`、「非本番ブランチのビルド」を ON にする
-   - 環境変数: `NODE_VERSION=24.17.0`、`PNPM_VERSION=11.8.0`
+3. **GitHub Secrets の設定**
+   - GitHub リポジトリの `Settings -> Secrets and variables -> Actions` に以下を登録します。
+     - `CLOUDFLARE_API_TOKEN` : 発行した API トークン
+     - `CLOUDFLARE_ACCOUNT_ID` : Cloudflare アカウント ID
 
-3. **初回デプロイ** — 設定完了後、main ブランチへ push または Workers Builds
-   ダッシュボードから手動でビルドをトリガーする。
-
-> **incremental cache（R2）について** — 現状このアプリは全ページ static のため、
-> OpenNext の incremental cache（R2）は使っていない。将来 ISR / 動的ルートを追加して
-> 永続キャッシュが必要になったら、Cloudflare ダッシュボードで R2 を有効化し、R2 バケット
-> を作成（`wrangler r2 bucket create next-pyon-inc-cache`）したうえで、
-> `open-next.config.ts` に `incrementalCache` を、`wrangler.jsonc` に R2 binding を戻す。
+> **incremental cache（R2）について** — 現状このアプリは全ページ static のため、OpenNext の incremental cache（R2）は使っていません。将来 ISR / 動的ルートを追加して永続キャッシュが必要になったら、Cloudflare ダッシュボードで R2 を有効化し、R2 バケットを作成したうえで `open-next.config.ts` に `incrementalCache` を設定し直し、`wrangler.jsonc` に R2 binding を追加してください。
 
 ## 構成
 
