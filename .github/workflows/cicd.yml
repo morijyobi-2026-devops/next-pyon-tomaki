@@ -142,8 +142,7 @@ jobs:
           WORKER_NAME="next-pyon-tomaki-pr-$PR_NUMBER"
           
           # Dynamically update WORKER_SELF_REFERENCE for the PR preview
-          sed -i -e "s/\"service\": \"next-pyon-tomaki\"/\"service\": \"$WORKER_NAME\"/g" wrangler.jsonc
-          
+          sed -i -e "s/\"service\": \"next-pyon-tomaki-preview\"/\"service\": \"$WORKER_NAME\"/g" wrangler.jsonc
           npx wrangler deploy --name "$WORKER_NAME" --env preview > deploy_output.txt
           cat deploy_output.txt
           
