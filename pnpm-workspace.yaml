@@ -15,6 +15,7 @@ minimumReleaseAge: 2880
 # sharp / unrs-resolver はネイティブビルドを実行しない（Cloudflare では不要なため）。
 # esbuild / workerd は OpenNext のビルド・ローカルプレビューに必要なため許可する。
 allowBuilds:
+  better-sqlite3: true
   esbuild: true
   sharp: false
   unrs-resolver: false
