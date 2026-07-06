@@ -7,18 +7,21 @@ export interface DbClient {
 }
 
 export const getDb = (): DbClient => {
-  const isCloudflare = process.env.IS_CLOUDFLARE === "true" || !!process.env.DB;
+  const isCloudflare = (() => {
+    try {
+      const { getCloudflareContext } = require("@opennextjs/cloudflare");
+      return !!getCloudflareContext()?.env;
+    } catch {
+      return false;
+    }
+  })();
 
   if (isCloudflare) {
     let d1: any = null;
     try {
-      if (process.env.DB) {
-        d1 = process.env.DB;
-      } else {
-        const { getCloudflareContext } = require("@opennextjs/cloudflare");
-        const context = getCloudflareContext();
-        d1 = context?.env?.DB;
-      }
+      const { getCloudflareContext } = require("@opennextjs/cloudflare");
+      const context = getCloudflareContext();
+      d1 = context?.env?.DB;
     } catch (e: any) {
       throw new Error(`Failed to get D1 database context: ${e.message}`);
     }
