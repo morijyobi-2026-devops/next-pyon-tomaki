@@ -34,8 +34,8 @@ importers:
         version: 19.2.7(react@19.2.7)
     devDependencies:
       '@opennextjs/cloudflare':
-        specifier: 1.19.11
-        version: 1.19.11(next@16.2.10(@babel/core@7.29.7)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(wrangler@4.103.0)
+        specifier: 1.20.1
+        version: 1.20.1(next@16.2.10(@babel/core@7.29.7)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(wrangler@4.103.0)
       '@tailwindcss/postcss':
         specifier: 4.3.2
         version: 4.3.2
@@ -1110,12 +1110,16 @@ packages:
     peerDependencies:
       next: '>=15.5.18 <16 || >=16.2.6'
 
-  '@opennextjs/cloudflare@1.19.11':
-    resolution: {integrity: sha512-spZ7YsZZW9q/OJStaZlJhuklYKei5e2tNQ7PMi3DDSJ7x7167m7EYYHQZfVN5gwJBDkMR2jUDW88oHjnGz4YYw==}
+  '@opennextjs/cloudflare@1.20.1':
+    resolution: {integrity: sha512-T7yRoEmIdDQada0itRQmQ3cb9o9tWVg1193MviPWRX7XJulOQ6adz45ZgrJuzEPiwi+kMGnj9kozlNBlRNQZcw==}
     hasBin: true
     peerDependencies:
       next: '>=15.5.18 <16 || >=16.2.6'
+      rclone.js: ^0.6.6
       wrangler: ^4.86.0
+    peerDependenciesMeta:
+      rclone.js:
+        optional: true
 
   '@poppinss/colors@4.1.6':
     resolution: {integrity: sha512-H9xkIdFswbS8n1d6vmRd8+c10t2Qe+rZITbbDHHkQixH5+2x1FDGmi/0K+WgWiqQFKPSlIYB7jlH6Kpfn6Fleg==}
@@ -4582,10 +4586,10 @@ snapshots:
       dotenv: 16.6.1
       eciesjs: 0.4.18
       execa: 5.1.1
-      fdir: 6.5.0(picomatch@4.0.4)
+      fdir: 6.5.0(picomatch@4.0.5)
       ignore: 5.3.2
       object-treeify: 1.1.33
-      picomatch: 4.0.4
+      picomatch: 4.0.5
       which: 4.0.0
 
   '@ecies/ciphers@0.2.6(@noble/ciphers@1.3.0)':
@@ -5049,7 +5053,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@opennextjs/cloudflare@1.19.11(next@16.2.10(@babel/core@7.29.7)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(wrangler@4.103.0)':
+  '@opennextjs/cloudflare@1.20.1(next@16.2.10(@babel/core@7.29.7)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(wrangler@4.103.0)':
     dependencies:
       '@ast-grep/napi': 0.40.5
       '@dotenvx/dotenvx': 1.31.0
@@ -6459,10 +6463,6 @@ snapshots:
   fastq@1.20.1:
     dependencies:
       reusify: 1.1.0
-
-  fdir@6.5.0(picomatch@4.0.4):
-    optionalDependencies:
-      picomatch: 4.0.4
 
   fdir@6.5.0(picomatch@4.0.5):
     optionalDependencies:
