@@ -1,7 +1,7 @@
 # syntax=docker.io/docker/dockerfile:1
 
 # 開発用イメージ。ビルドコンテキストはリポジトリルート（pnpm workspace のため）。
-FROM node:24.17.0-alpine
+FROM node:24.18.0-alpine
 
 WORKDIR /app
 

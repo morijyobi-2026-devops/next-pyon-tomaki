@@ -39,8 +39,8 @@
       "d1_databases": [
         {
           "binding": "DB",
-          "database_name": "next-pyon-db",
-          "database_id": "5388ae4b-e766-4cf4-b650-bfff0dd5ef73"
+          "database_name": "next-pyon-db-preview",
+          "database_id": "9da69cf4-1357-4327-bdf2-8551183efcf3"
         }
       ]
     }
