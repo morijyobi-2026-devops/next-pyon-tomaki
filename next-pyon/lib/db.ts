@@ -69,16 +69,22 @@ export const getDb = (): DbClient => {
       fs.mkdirSync(dbDir, { recursive: true });
     }
 
-    const localDb = new Database(dbPath);
-    
-    // ローカル起動時の初期化
-    localDb.exec(`
-      CREATE TABLE IF NOT EXISTS counters (
-        id INTEGER PRIMARY KEY,
-        count INTEGER DEFAULT 0
-      );
-      INSERT OR IGNORE INTO counters (id, count) VALUES (1, 0);
-    `);
+    const dbCacheKey = `__local_better_sqlite3_db__:${dbPath}`;
+    const initCacheKey = `__local_better_sqlite3_db_inited__:${dbPath}`;
+
+    const localDb = ((globalThis as any)[dbCacheKey] ??= new Database(dbPath));
+
+    // ローカル起動時の初期化（初回のみ）
+    if (!(globalThis as any)[initCacheKey]) {
+      localDb.exec(`
+        CREATE TABLE IF NOT EXISTS counters (
+          id INTEGER PRIMARY KEY,
+          count INTEGER DEFAULT 0
+        );
+        INSERT OR IGNORE INTO counters (id, count) VALUES (1, 0);
+      `);
+      (globalThis as any)[initCacheKey] = true;
+    }
 
     return {
       async query<T>(sql: string, params: any[] = []): Promise<T[]> {
