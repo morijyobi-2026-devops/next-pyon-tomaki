@@ -59,11 +59,9 @@ export const getDb = (): DbClient => {
     let dbPath = path.resolve(process.cwd(), dbRelativePath);
     
     // next-pyon ディレクトリ内で実行された時のパス調整
-    if (!fs.existsSync(dbPath)) {
-      const parentDbPath = path.resolve(process.cwd(), "..", dbRelativePath);
-      if (fs.existsSync(parentDbPath)) {
-        dbPath = parentDbPath;
-      }
+    // （初回起動で DB がまだ存在しない場合も親ディレクトリ側を優先する）
+    if (path.basename(process.cwd()) === "next-pyon" && !path.isAbsolute(dbRelativePath)) {
+      dbPath = path.resolve(process.cwd(), "..", dbRelativePath);
     }
 
     const dbDir = path.dirname(dbPath);
