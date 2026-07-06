@@ -1,7 +1,7 @@
 # syntax=docker.io/docker/dockerfile:1
 
 # 本番用イメージ。ビルドコンテキストはリポジトリルート（pnpm workspace のため）。
-FROM node:24.17.0-alpine AS base
+FROM node:24.18.0-alpine AS base
 RUN corepack enable pnpm
 ENV HUSKY=0
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -21,7 +21,7 @@ ENV BUILD_STANDALONE=1
 RUN pnpm --filter next-pyon build
 
 # Step 2. 本番イメージ。standalone 出力だけをコピーして軽量化する。
-FROM node:24.17.0-alpine AS runner
+FROM node:24.18.0-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
