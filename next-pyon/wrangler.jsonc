@@ -14,13 +14,33 @@
       "service": "next-pyon-tomaki"
     }
   ],
+  "vars": {
+    "IS_CLOUDFLARE": "true"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "next-pyon-db",
+      "database_id": "5388ae4b-e766-4cf4-b650-bfff0dd5ef73"
+    }
+  ],
   "env": {
     "preview": {
       "name": "next-pyon-tomaki-preview",
+      "vars": {
+        "IS_CLOUDFLARE": "true"
+      },
       "services": [
         {
           "binding": "WORKER_SELF_REFERENCE",
           "service": "next-pyon-tomaki-preview"
+        }
+      ],
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "next-pyon-db",
+          "database_id": "5388ae4b-e766-4cf4-b650-bfff0dd5ef73"
         }
       ]
     }
