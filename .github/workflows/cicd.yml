@@ -1,0 +1,181 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - name: Setup tools via mise
+        uses: jdx/mise-action@dba19683ed58901619b14f395a24841710cb4925 # v4.1.0
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run lint
+        run: pnpm run lint
+
+      # - name: Run tests
+      #   run: pnpm --filter next-pyon test
+
+  build:
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - name: Setup tools via mise
+        uses: jdx/mise-action@dba19683ed58901619b14f395a24841710cb4925 # v4.1.0
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # opennextjs-cloudflare build は内部で `next build` を実行する（= 通常ビルドを
+      # 内包する）ため、別途 `pnpm run build` は走らせない（二重 next build の回避）。
+      - name: Build (OpenNext for Cloudflare)
+        run: pnpm --filter next-pyon exec opennextjs-cloudflare build
+
+      # # better-sqlite3 の Node 経路は prod イメージの smoke（docker-prod ジョブ）で
+      # # 確認するが、デプロイ先である D1/Workers 経路はそこでは一切実行されない。
+      # # ローカル workerd(miniflare) で実際に起動し、D1 binding 経由 of upsert/RETURNING
+      # # が動いてカウンターが増えることをここで確認する（getDb の D1 判定経路の検証）。
+      # - name: Smoke test D1/Workers path (local workerd)
+      #   working-directory: next-pyon
+      #   env:
+      #     WRANGLER_SEND_METRICS: "false"
+      #   run: |
+      #     pnpm exec wrangler dev --port 8787 --ip 127.0.0.1 \
+      #       > "$RUNNER_TEMP/wrangler-dev.log" 2>&1 &
+      #     wrangler_pid=$!
+      #     trap 'kill "$wrangler_pid" 2>/dev/null || true' EXIT
+      #     bash ../scripts/smoke-counter.sh http://127.0.0.1:8787
+      # 
+      # - name: Print wrangler log on failure
+      #   if: failure()
+      #   run: cat "$RUNNER_TEMP/wrangler-dev.log" || true
+
+  # dev / prod の 2 イメージは互いに独立で、build ジョブの成果物も使わない
+  # （各 Dockerfile が自前で next build + better-sqlite3 をコンパイルする）。
+  # build を待たず lint だけに依存させ、build と並行で走らせて全体の待ち時間を縮める。
+  docker-dev:
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - name: Build dev image
+        run: docker compose -f compose.dev.yaml build
+
+  docker-prod:
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - name: Build prod image
+        run: docker compose -f compose.prod.yaml build
+
+      # # standalone 出力に better-sqlite3 のネイティブバイナリが同梱されているかは
+      # # ビルドだけでは検出できないため、実際に起動してカウンター API を叩いて確認する。
+      # # 共有 smoke スクリプトで「count が返る」だけでなく「アクセスごとに増える」ことを
+      # # 検証し、さらに再起動後もカウントが継続する（named volume への永続化）ことを見る。
+      # - name: Smoke test prod image (increment + restart persistence)
+      #   run: |
+      #     docker compose -f compose.prod.yaml up -d
+      #     SMOKE_COUNT_OUT="$RUNNER_TEMP/count-before.txt" \
+      #       bash scripts/smoke-counter.sh http://localhost:3000
+      #     before="$(cat "$RUNNER_TEMP/count-before.txt")"
+      #     # 再起動してもカウントが 0 に戻らず継続すること（app-data volume の永続化）
+      #     docker compose -f compose.prod.yaml restart app
+      #     SMOKE_COUNT_OUT="$RUNNER_TEMP/count-after.txt" \
+      #       bash scripts/smoke-counter.sh http://localhost:3000
+      #     after="$(cat "$RUNNER_TEMP/count-after.txt")"
+      #     echo "count before restart: $before, after restart: $after"
+      #     if [ "$after" -le "$before" ]; then
+      #       echo "count did not persist across restart ($before -> $after)" >&2
+      #       exit 1
+      #     fi
+      # 
+      # - name: Tear down prod image
+      #   if: always()
+      #   run: docker compose -f compose.prod.yaml down -v
+
+  deploy-preview:
+    if: github.event_name == 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - name: Setup tools via mise
+        uses: jdx/mise-action@dba19683ed58901619b14f395a24841710cb4925 # v4.1.0
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm --filter next-pyon exec opennextjs-cloudflare build
+
+      - name: Deploy to Cloudflare Workers (Preview)
+        id: deploy
+        working-directory: next-pyon
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          WORKER_NAME="next-pyon-tomaki-pr-$PR_NUMBER"
+          
+          # Dynamically update WORKER_SELF_REFERENCE for the PR preview
+          sed -i -e "s/\"service\": \"next-pyon-tomaki-preview\"/\"service\": \"$WORKER_NAME\"/g" wrangler.jsonc
+          npx wrangler deploy --name "$WORKER_NAME" --env preview > deploy_output.txt
+          cat deploy_output.txt
+          
+          # Extract the deployed URL (basic awk pattern matching Wrangler output)
+          PREVIEW_URL=$(awk '/https:\/\/[a-zA-Z0-9.-]+\.workers\.dev/ {print $NF}' deploy_output.txt | head -n 1)
+          echo "url=$PREVIEW_URL" >> $GITHUB_OUTPUT
+
+      - name: Comment PR
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: preview-environment
+          message: |
+            ### ⚡ Preview Environment Ready
+            🚀 URL: ${{ steps.deploy.outputs.url }}
+
+  deploy-prod:
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - name: Setup tools via mise
+        uses: jdx/mise-action@dba19683ed58901619b14f395a24841710cb4925 # v4.1.0
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm --filter next-pyon exec opennextjs-cloudflare build
+
+      - name: Deploy to Cloudflare Workers (Production)
+        working-directory: next-pyon
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: pnpm exec wrangler deploy

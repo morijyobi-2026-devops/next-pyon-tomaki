@@ -13,5 +13,16 @@
       "binding": "WORKER_SELF_REFERENCE",
       "service": "next-pyon-tomaki"
     }
-  ]
+  ],
+  "env": {
+    "preview": {
+      "name": "next-pyon-tomaki-preview",
+      "services": [
+        {
+          "binding": "WORKER_SELF_REFERENCE",
+          "service": "next-pyon-tomaki-preview"
+        }
+      ]
+    }
+  }
 }
