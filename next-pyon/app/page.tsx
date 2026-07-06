@@ -22,7 +22,8 @@ export default async function Home() {
     
     currentCount = result[0]?.count ?? 0;
   } catch (error) {
-    errorMsg = error instanceof Error ? error.stack || error.message : String(error);
+    console.error(error);
+    errorMsg = error instanceof Error ? error.message : String(error);
   }
 
   if (errorMsg) {
