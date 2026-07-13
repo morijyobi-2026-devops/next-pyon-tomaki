@@ -1,6 +1,6 @@
 [tools]
 node = "24.18.0"
-pnpm = "11.10.0"
+pnpm = "11.11.0"
 
 [tasks."docker:dev"]
 description = "Docker で dev サーバーを起動する (http://localhost:3000)"
