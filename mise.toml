@@ -1,4 +1,5 @@
 [tools]
+awscli = { version = "latest", symlink_bins = "true" }
 node = "24.18.0"
 pnpm = "11.12.0"
 terraform = "latest"
