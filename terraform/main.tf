@@ -38,10 +38,10 @@ resource "aws_internet_gateway" "next_pyon" {
   }
 }
 
-# Public Subnets
+# Public Subnets (Upper half of VPC CIDR block)
 resource "aws_subnet" "public_1" {
   vpc_id                  = aws_vpc.next_pyon.id
-  cidr_block              = "10.0.1.0/24"
+  cidr_block              = "10.0.0.0/24"
   availability_zone       = data.aws_availability_zones.available.names[0]
   map_public_ip_on_launch = true
 
@@ -53,7 +53,7 @@ resource "aws_subnet" "public_1" {
 
 resource "aws_subnet" "public_2" {
   vpc_id                  = aws_vpc.next_pyon.id
-  cidr_block              = "10.0.2.0/24"
+  cidr_block              = "10.0.1.0/24"
   availability_zone       = data.aws_availability_zones.available.names[1]
   map_public_ip_on_launch = true
 
@@ -63,10 +63,10 @@ resource "aws_subnet" "public_2" {
   }
 }
 
-# Private Subnets
+# Private Subnets (Lower half of VPC CIDR block)
 resource "aws_subnet" "private_1" {
   vpc_id            = aws_vpc.next_pyon.id
-  cidr_block        = "10.0.11.0/24"
+  cidr_block        = "10.0.128.0/24"
   availability_zone = data.aws_availability_zones.available.names[0]
 
   tags = {
@@ -77,7 +77,7 @@ resource "aws_subnet" "private_1" {
 
 resource "aws_subnet" "private_2" {
   vpc_id            = aws_vpc.next_pyon.id
-  cidr_block        = "10.0.12.0/24"
+  cidr_block        = "10.0.129.0/24"
   availability_zone = data.aws_availability_zones.available.names[1]
 
   tags = {
@@ -125,8 +125,8 @@ resource "aws_security_group" "web" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # ポート 80 (HTTP) は、ALB 有効化状態によって外側の aws_security_group_rule で動的に制御します
-
+  # ポート 80 (HTTP) は、ALB 有効化状態によって外側の aws_security_group_rule で制御
+  
   egress {
     from_port   = 0
     to_port     = 0
@@ -253,6 +253,23 @@ resource "aws_db_instance" "db" {
   }
 }
 
+# S3 Bucket for deployment artifacts (ソースコード zip 置き場)
+resource "random_string" "bucket_suffix" {
+  length  = 8
+  special = false
+  upper   = false
+}
+
+resource "aws_s3_bucket" "deploy" {
+  bucket        = "next-pyon-deploy-bucket-${random_string.bucket_suffix.result}"
+  force_destroy = true
+
+  tags = {
+    Name        = "next-pyon-deploy-bucket"
+    Environment = var.environment
+  }
+}
+
 # Application Load Balancer (Structure 4 only)
 resource "aws_lb" "alb" {
   count              = var.enable_alb ? 1 : 0
@@ -336,6 +353,7 @@ resource "aws_instance" "web" {
   key_name               = var.key_name
   subnet_id              = aws_subnet.public_1.id
   vpc_security_group_ids = [aws_security_group.web.id]
+  iam_instance_profile   = var.iam_instance_profile
 
   root_block_device {
     volume_size           = 20
@@ -352,9 +370,9 @@ resource "aws_instance" "web" {
     swapon /swapfile
     echo '/swapfile none swap sw 0 0' >> /etc/fstab
 
-    # Update package list and install prerequisites
+    # Update package list and install prerequisites (including unzip & awscli)
     apt-get update -y
-    apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release git
+    apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release git unzip awscli
 
     # Install Docker official GPG key
     mkdir -p /etc/apt/keyrings
@@ -374,9 +392,25 @@ resource "aws_instance" "web" {
     # Add ubuntu user to docker group
     usermod -aG docker ubuntu
 
-    # Prepare app directory and environment variables (DATABASE_URL connection string)
+    # Prepare app directory and environment variables
     mkdir -p /home/ubuntu/app
-    echo "DATABASE_URL=postgresql://${var.rds_username}:${var.rds_password}@${aws_db_instance.db.endpoint}/${var.rds_db_name}" > /home/ubuntu/app/.env
+    
+    # Download deploy.zip from S3 (if it exists) and deploy
+    # (First creation won't have the zip file yet, it will fail silently and be deployed by deploy.sh)
+    aws s3 cp s3://${aws_s3_bucket.deploy.bucket}/deploy.zip /home/ubuntu/app/deploy.zip || true
+    
+    if [ -f /home/ubuntu/app/deploy.zip ]; then
+      unzip -o /home/ubuntu/app/deploy.zip -d /home/ubuntu/app/
+      rm /home/ubuntu/app/deploy.zip
+      
+      # Generate .env with DB connection string
+      echo "DATABASE_URL=postgresql://${var.rds_username}:${var.rds_password}@${aws_db_instance.db.endpoint}/${var.rds_db_name}" > /home/ubuntu/app/.env
+      
+      # Start docker containers
+      cd /home/ubuntu/app
+      docker compose -f compose.prod.yaml up -d --build
+    fi
+
     chown -R ubuntu:ubuntu /home/ubuntu/app
   EOF
   user_data_replace_on_change = true

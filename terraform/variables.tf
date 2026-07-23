@@ -54,3 +54,10 @@ variable "rds_password" {
   description = "Database master password"
   sensitive   = true
 }
+
+# IAM & S3 設定
+variable "iam_instance_profile" {
+  type        = string
+  default     = "LabInstanceProfile"
+  description = "IAM instance profile name. Default is LabInstanceProfile for AWS Academy."
+}

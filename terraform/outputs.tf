@@ -12,3 +12,8 @@ output "rds_endpoint" {
   description = "RDS instance endpoint"
   value       = aws_db_instance.db.endpoint
 }
+
+output "s3_bucket_name" {
+  description = "Name of the S3 bucket for deployment"
+  value       = aws_s3_bucket.deploy.id
+}
