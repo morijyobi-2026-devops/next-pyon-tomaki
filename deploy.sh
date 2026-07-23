@@ -4,11 +4,27 @@ set -e
 # SSH private key path (defaults to ~/.ssh/labsuser.pem, or first argument)
 KEY_PATH=${1:-"$HOME/.ssh/labsuser.pem"}
 
+# Target Terraform directory (defaults to 'terraform', fallback to 'terraform-study')
+TF_DIR="terraform"
+if [ ! -d "$(dirname "$0")/$TF_DIR" ]; then
+    TF_DIR="terraform-study"
+fi
+
 # Retrieve EC2 Public IP from Terraform output
-echo "Retrieving EC2 Public IP from Terraform..."
-cd "$(dirname "$0")/terraform-study"
-EC2_IP=$(export AWS_PROFILE=morijyobi-2026-devops && error_msg=$(mise exec -- terraform output -raw public_ip 2>&1) && echo "$error_msg" || echo "")
-cd ..
+echo "Retrieving EC2 Public IP from Terraform ($TF_DIR)..."
+cd "$(dirname "$0")/$TF_DIR"
+
+# Allow overriding AWS_PROFILE, default to morijyobi-2026-devops if not set
+DEPLOY_AWS_PROFILE=${AWS_PROFILE-"morijyobi-2026-devops"}
+
+if [ -z "$DEPLOY_AWS_PROFILE" ]; then
+    EC2_IP=$(error_msg=$(terraform output -raw public_ip 2>&1) && echo "$error_msg" || echo "")
+else
+    EC2_IP=$(export AWS_PROFILE="$DEPLOY_AWS_PROFILE" && error_msg=$(terraform output -raw public_ip 2>&1) && echo "$error_msg" || echo "")
+fi
+cd - > /dev/null
+
+
 
 if [[ "$EC2_IP" == *"Error"* ]] || [ -z "$EC2_IP" ]; then
     echo "Error: Could not retrieve EC2 Public IP from Terraform output."

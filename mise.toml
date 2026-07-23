@@ -46,3 +46,29 @@ run = "pnpm --filter next-pyon cf:preview"
 description = "Cloudflare へ手動デプロイする (要 wrangler login)"
 dir = "{{config_root}}"
 run = "pnpm --filter next-pyon cf:deploy"
+
+[tasks."aws:init"]
+description = "AWS production インフラ用の Terraform を初期化する"
+dir = "{{config_root}}/terraform"
+run = "terraform init"
+
+[tasks."aws:plan"]
+description = "AWS production インフラ用の Terraform 実行計画を作成する"
+dir = "{{config_root}}/terraform"
+run = "terraform plan"
+
+[tasks."aws:apply"]
+description = "AWS production インフラを Terraform で構築する"
+dir = "{{config_root}}/terraform"
+run = "terraform apply -auto-approve"
+
+[tasks."aws:deploy"]
+description = "Next.js アプリをビルドし、AWS EC2 インスタンスへデプロイする"
+dir = "{{config_root}}"
+run = "./deploy.sh"
+
+[tasks."aws:destroy"]
+description = "AWS production インフラを Terraform で削除する"
+dir = "{{config_root}}/terraform"
+run = "terraform destroy -auto-approve"
+
