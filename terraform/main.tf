@@ -111,10 +111,10 @@ resource "aws_route_table_association" "public_2" {
   route_table_id = aws_route_table.public.id
 }
 
-# Security Group
+# Security Group for EC2
 resource "aws_security_group" "web" {
   name        = "next-pyon-web-sg"
-  description = "Allow HTTP and SSH from the internet"
+  description = "Allow SSH and HTTP to EC2 instance"
   vpc_id      = aws_vpc.next_pyon.id
 
   ingress {
@@ -124,6 +124,52 @@ resource "aws_security_group" "web" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  # ポート 80 (HTTP) は、ALB 有効化状態によって外側の aws_security_group_rule で動的に制御します
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name        = "next-pyon-web-sg"
+    Environment = var.environment
+  }
+}
+
+# EC2 Security Group Rule for direct HTTP (Structure 2 - ALB Disabled)
+resource "aws_security_group_rule" "web_http_direct" {
+  count             = var.enable_alb ? 0 : 1
+  type              = "ingress"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.web.id
+  description       = "Allow direct HTTP access from the internet"
+}
+
+# EC2 Security Group Rule for HTTP via ALB (Structure 4 - ALB Enabled)
+resource "aws_security_group_rule" "web_http_via_alb" {
+  count                    = var.enable_alb ? 1 : 0
+  type                     = "ingress"
+  from_port                = 80
+  to_port                  = 80
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.alb[0].id
+  security_group_id        = aws_security_group.web.id
+  description              = "Allow HTTP access only from ALB"
+}
+
+# ALB Security Group (Structure 4 only)
+resource "aws_security_group" "alb" {
+  count       = var.enable_alb ? 1 : 0
+  name        = "next-pyon-alb-sg"
+  description = "Allow HTTP access from the internet to ALB"
+  vpc_id      = aws_vpc.next_pyon.id
 
   ingress {
     description = "HTTP"
@@ -141,9 +187,130 @@ resource "aws_security_group" "web" {
   }
 
   tags = {
-    Name        = "next-pyon-web-sg"
+    Name        = "next-pyon-alb-sg"
     Environment = var.environment
   }
+}
+
+# RDS Security Group
+resource "aws_security_group" "rds" {
+  name        = "next-pyon-rds-sg"
+  description = "Allow access to RDS PostgreSQL from EC2"
+  vpc_id      = aws_vpc.next_pyon.id
+
+  ingress {
+    description     = "PostgreSQL from EC2"
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.web.id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name        = "next-pyon-rds-sg"
+    Environment = var.environment
+  }
+}
+
+# RDS DB Subnet Group (Private Subnets)
+resource "aws_db_subnet_group" "db" {
+  name       = "next-pyon-db-subnet-group"
+  subnet_ids = [aws_subnet.private_1.id, aws_subnet.private_2.id]
+
+  tags = {
+    Name        = "next-pyon-db-subnet-group"
+    Environment = var.environment
+  }
+}
+
+# RDS PostgreSQL Instance
+resource "aws_db_instance" "db" {
+  identifier             = "next-pyon-rds"
+  allocated_storage      = 20
+  max_allocated_storage  = 100
+  storage_type           = "gp3"
+  engine                 = "postgres"
+  engine_version         = "16.3"
+  instance_class         = "db.t4g.micro"
+  db_name                = var.rds_db_name
+  username               = var.rds_username
+  password               = var.rds_password
+  db_subnet_group_name   = aws_db_subnet_group.db.name
+  vpc_security_group_ids = [aws_security_group.rds.id]
+  skip_final_snapshot    = true
+  multi_az               = false
+
+  tags = {
+    Name        = "next-pyon-rds"
+    Environment = var.environment
+  }
+}
+
+# Application Load Balancer (Structure 4 only)
+resource "aws_lb" "alb" {
+  count              = var.enable_alb ? 1 : 0
+  name               = "next-pyon-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.alb[0].id]
+  subnets            = [aws_subnet.public_1.id, aws_subnet.public_2.id]
+
+  tags = {
+    Name        = "next-pyon-alb"
+    Environment = var.environment
+  }
+}
+
+# Target Group (Structure 4 only)
+resource "aws_lb_target_group" "tg" {
+  count       = var.enable_alb ? 1 : 0
+  name        = "next-pyon-tg"
+  port        = 80
+  protocol    = "HTTP"
+  vpc_id      = aws_vpc.next_pyon.id
+  target_type = "instance"
+
+  health_check {
+    path                = "/"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 3
+    unhealthy_threshold = 3
+    matcher             = "200"
+  }
+
+  tags = {
+    Name        = "next-pyon-tg"
+    Environment = var.environment
+  }
+}
+
+# ALB Listener (Structure 4 only)
+resource "aws_lb_listener" "listener" {
+  count             = var.enable_alb ? 1 : 0
+  load_balancer_arn = aws_lb.alb[0].arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.tg[0].arn
+  }
+}
+
+# Target Group Attachment (Structure 4 only)
+resource "aws_lb_target_group_attachment" "attachment" {
+  count            = var.enable_alb ? 1 : 0
+  target_group_arn = aws_lb_target_group.tg[0].arn
+  target_id        = aws_instance.web.id
+  port             = 80
 }
 
 # AMI Datasource for Ubuntu 24.04
@@ -170,14 +337,12 @@ resource "aws_instance" "web" {
   subnet_id              = aws_subnet.public_1.id
   vpc_security_group_ids = [aws_security_group.web.id]
 
-  # GP3 root volume with 20GB for docker build space
   root_block_device {
     volume_size           = 20
     volume_type           = "gp3"
     delete_on_termination = true
   }
 
-  # User Data script to install Docker, Docker Compose, Git and setup Swap
   user_data = <<-EOF
     #!/bin/bash
     # Create 2GB Swap space to prevent out-of-memory issues
@@ -208,6 +373,11 @@ resource "aws_instance" "web" {
 
     # Add ubuntu user to docker group
     usermod -aG docker ubuntu
+
+    # Prepare app directory and environment variables (DATABASE_URL connection string)
+    mkdir -p /home/ubuntu/app
+    echo "DATABASE_URL=postgresql://${var.rds_username}:${var.rds_password}@${aws_db_instance.db.endpoint}/${var.rds_db_name}" > /home/ubuntu/app/.env
+    chown -R ubuntu:ubuntu /home/ubuntu/app
   EOF
   user_data_replace_on_change = true
 

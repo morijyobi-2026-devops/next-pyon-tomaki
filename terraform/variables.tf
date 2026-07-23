@@ -27,3 +27,30 @@ variable "environment" {
   default     = "production"
   description = "Deployment environment"
 }
+
+# 構成4用の切り替えフラグ
+variable "enable_alb" {
+  type        = bool
+  default     = false
+  description = "Enable Application Load Balancer (Structure 4). If false, directly accesses EC2 (Structure 2)"
+}
+
+# RDS設定
+variable "rds_db_name" {
+  type        = string
+  default     = "next_pyon"
+  description = "Database name for RDS"
+}
+
+variable "rds_username" {
+  type        = string
+  default     = "postgres"
+  description = "Database master username"
+}
+
+variable "rds_password" {
+  type        = string
+  default     = "SuperSecurePassword123!"
+  description = "Database master password"
+  sensitive   = true
+}
