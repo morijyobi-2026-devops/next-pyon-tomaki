@@ -1,0 +1,90 @@
+name: AWS Production Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      terraform_action:
+        description: 'Terraform Action to perform'
+        required: true
+        default: 'apply'
+        type: choice
+        options:
+          - apply
+          - plan
+          - destroy
+          - none
+
+permissions:
+  contents: read
+
+jobs:
+  terraform:
+    name: Terraform
+    if: github.event.inputs.terraform_action != 'none'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Setup tools via mise
+        uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d # v4.2.0
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: us-east-1
+
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init
+
+      - name: Terraform Plan
+        if: github.event.inputs.terraform_action == 'plan'
+        working-directory: terraform
+        run: terraform plan -var="aws_profile="
+
+      - name: Terraform Apply
+        if: github.event.inputs.terraform_action == 'apply'
+        working-directory: terraform
+        run: terraform apply -auto-approve -var="aws_profile="
+
+      - name: Terraform Destroy
+        if: github.event.inputs.terraform_action == 'destroy'
+        working-directory: terraform
+        run: terraform destroy -auto-approve -var="aws_profile="
+
+  deploy:
+    name: Deploy App to EC2
+    needs: terraform
+    # terraform ジョブを実行しなかった（none）場合か、apply が成功した場合にデプロイを走らせる
+    if: always() && (github.event.inputs.terraform_action == 'none' || needs.terraform.result == 'success') && github.event.inputs.terraform_action != 'destroy'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Setup tools via mise
+        uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d # v4.2.0
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: us-east-1
+
+      - name: Set up SSH Private Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AWS_EC2_SSH_KEY }}" > ~/.ssh/labsuser.pem
+          chmod 400 ~/.ssh/labsuser.pem
+
+      - name: Deploy Application
+        # GitHub Actions内では AWS_PROFILE を空にし、環境変数から認証情報を取得させる
+        run: |
+          export AWS_PROFILE=""
+          ./deploy.sh ~/.ssh/labsuser.pem

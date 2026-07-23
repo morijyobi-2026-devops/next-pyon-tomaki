@@ -18,7 +18,7 @@ RUN pnpm install --frozen-lockfile
 COPY next-pyon ./next-pyon
 # next.config.ts はこのフラグがある時だけ standalone 出力を有効にする
 ENV BUILD_STANDALONE=1
-RUN pnpm --filter next-pyon build
+RUN NODE_OPTIONS="--max-old-space-size=1536" pnpm --filter next-pyon build
 
 # Step 2. 本番イメージ。standalone 出力だけをコピーして軽量化する。
 FROM node:24.18.0-alpine AS runner
