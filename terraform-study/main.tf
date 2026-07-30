@@ -12,11 +12,6 @@ provider "aws" {
   region = "us-east-1"
 }
 
-<<<<<<< HEAD
-# Create a VPC
-resource "aws_vpc" "example" {
-  cidr_block = "10.0.0.0/16"
-=======
 data "aws_availability_zones" "available" {
   state = "available"
 }
@@ -27,17 +22,11 @@ resource "aws_vpc" "example" {
   enable_dns_support   = true
   enable_dns_hostnames = true
 
->>>>>>> 2ca0d4e (S3 upload)
   tags = {
     Name = "Hello Morijyobi !!!!"
   }
 }
 
-<<<<<<< HEAD
-resource "aws_instance" "example" {
-  ami           = "resolve:ssm:/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64"
-  instance_type = "t3.micro"
-=======
 # Internet Gateway
 resource "aws_internet_gateway" "example" {
   vpc_id = aws_vpc.example.id
@@ -213,15 +202,11 @@ resource "aws_instance" "example" {
     usermod -aG docker ubuntu
   EOF
   user_data_replace_on_change = true
->>>>>>> 2ca0d4e (S3 upload)
 
   tags = {
     Name = "HelloWorld"
   }
 }
-<<<<<<< HEAD
-=======
-
 # Outputs
 output "public_ip" {
   description = "The public IP address of the EC2 instance"
@@ -232,4 +217,3 @@ output "public_url" {
   description = "URL of the httpd server"
   value       = "http://${aws_instance.example.public_ip}/"
 }
->>>>>>> 2ca0d4e (S3 upload)
