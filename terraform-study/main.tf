@@ -7,74 +7,117 @@ terraform {
   }
 }
 
+# Configure the AWS Provider
 provider "aws" {
   region = "us-east-1"
 }
 
-# 1. VPC & Network
-resource "aws_vpc" "prod_vpc" {
+data "aws_availability_zones" "available" {
+  state = "available"
+}
+
+# Create a VPC
+resource "aws_vpc" "example" {
   cidr_block           = "10.0.0.0/16"
-  enable_dns_hostnames = true
   enable_dns_support   = true
+  enable_dns_hostnames = true
 
   tags = {
-    Name = "next-pyon-prod-vpc"
+    Name = "Hello Morijyobi !!!!"
   }
 }
 
-resource "aws_internet_gateway" "igw" {
-  vpc_id = aws_vpc.prod_vpc.id
+# Internet Gateway
+resource "aws_internet_gateway" "example" {
+  vpc_id = aws_vpc.example.id
 
   tags = {
-    Name = "next-pyon-prod-igw"
+    Name = "example-igw"
   }
 }
 
-resource "aws_subnet" "public_subnet" {
-  vpc_id                  = aws_vpc.prod_vpc.id
+# Public Subnets
+resource "aws_subnet" "public_1" {
+  vpc_id                  = aws_vpc.example.id
   cidr_block              = "10.0.1.0/24"
+  availability_zone       = data.aws_availability_zones.available.names[0]
   map_public_ip_on_launch = true
-  availability_zone       = "us-east-1a"
 
   tags = {
-    Name = "next-pyon-prod-public-subnet"
+    Name = "example-public-1"
   }
 }
 
-resource "aws_route_table" "public_rt" {
-  vpc_id = aws_vpc.prod_vpc.id
+resource "aws_subnet" "public_2" {
+  vpc_id                  = aws_vpc.example.id
+  cidr_block              = "10.0.2.0/24"
+  availability_zone       = data.aws_availability_zones.available.names[1]
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "example-public-2"
+  }
+}
+
+# Private Subnets
+resource "aws_subnet" "private_1" {
+  vpc_id            = aws_vpc.example.id
+  cidr_block        = "10.0.11.0/24"
+  availability_zone = data.aws_availability_zones.available.names[0]
+
+  tags = {
+    Name = "example-private-1"
+  }
+}
+
+resource "aws_subnet" "private_2" {
+  vpc_id            = aws_vpc.example.id
+  cidr_block        = "10.0.12.0/24"
+  availability_zone = data.aws_availability_zones.available.names[1]
+
+  tags = {
+    Name = "example-private-2"
+  }
+}
+
+# Route Table for Public Subnets (0.0.0.0/0 -> IGW)
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.example.id
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.igw.id
+    gateway_id = aws_internet_gateway.example.id
   }
 
   tags = {
-    Name = "next-pyon-prod-public-rt"
+    Name = "example-public-rt"
   }
 }
 
-resource "aws_route_table_association" "public_association" {
-  subnet_id      = aws_subnet.public_subnet.id
-  route_table_id = aws_route_table.public_rt.id
+resource "aws_route_table_association" "public_1" {
+  subnet_id      = aws_subnet.public_1.id
+  route_table_id = aws_route_table.public.id
 }
 
-# 2. Security Group
-resource "aws_security_group" "web_sg" {
-  name        = "next-pyon-prod-web-sg"
-  description = "Allow inbound SSH and HTTP traffic"
-  vpc_id      = aws_vpc.prod_vpc.id
+resource "aws_route_table_association" "public_2" {
+  subnet_id      = aws_subnet.public_2.id
+  route_table_id = aws_route_table.public.id
+}
 
-  # SSH Access
+# Security Group: allow HTTP (80) and SSH (22) from the internet via IGW
+resource "aws_security_group" "web" {
+  name        = "example-web-sg"
+  description = "Allow HTTP and SSH from the internet"
+  vpc_id      = aws_vpc.example.id
+
   ingress {
     description = "SSH"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Learner Lab / School environment
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # HTTP Access
   ingress {
     description = "HTTP"
     from_port   = 80
@@ -83,7 +126,6 @@ resource "aws_security_group" "web_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Outbound Rules
   egress {
     from_port   = 0
     to_port     = 0
@@ -92,11 +134,11 @@ resource "aws_security_group" "web_sg" {
   }
 
   tags = {
-    Name = "next-pyon-prod-web-sg"
+    Name = "example-web-sg"
   }
 }
 
-# 3. AMI Datasource for Ubuntu 24.04
+# AMI Datasource for Ubuntu 24.04
 data "aws_ami" "ubuntu" {
   most_recent = true
   owners      = ["099720109477"] # Canonical
@@ -112,55 +154,67 @@ data "aws_ami" "ubuntu" {
   }
 }
 
-# 4. EC2 Instance
-resource "aws_instance" "web_server" {
-  ami           = data.aws_ami.ubuntu.id
-  instance_type = "t3.micro"
-  key_name      = "vockey" # Default key pair in AWS Academy Learner Lab
+# EC2 instance running Docker and Next.js in public subnet 1
+resource "aws_instance" "example" {
+  ami                    = data.aws_ami.ubuntu.id
+  instance_type          = "t3.micro"
+  key_name               = "vockey" # Default key pair in AWS Academy Learner Lab
+  subnet_id              = aws_subnet.public_1.id
+  vpc_security_group_ids = [aws_security_group.web.id]
 
-  subnet_id              = aws_subnet.public_subnet.id
-  vpc_security_group_ids = [aws_security_group.web_sg.id]
-
-  # Allocate GP3 root volume with 20GB for docker build space
+  # GP3 root volume with 20GB for docker build space
   root_block_device {
     volume_size           = 20
     volume_type           = "gp3"
     delete_on_termination = true
   }
 
-  # User Data script to install Docker, Docker Compose, Git
+  # User Data script to install Docker, Docker Compose, Git and setup Swap
   user_data = <<-EOF
-              #!/bin/bash
-              # Update package list and install prerequisites
-              apt-get update -y
-              apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release git
+    #!/bin/bash
+    # Create 2GB Swap space to prevent out-of-memory issues
+    fallocate -l 2G /swapfile
+    chmod 600 /swapfile
+    mkswap /swapfile
+    swapon /swapfile
+    echo '/swapfile none swap sw 0 0' >> /etc/fstab
 
-              # Install Docker official GPG key
-              mkdir -p /etc/apt/keyrings
-              curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    # Update package list and install prerequisites
+    apt-get update -y
+    apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release git
 
-              # Set up Docker repository
-              echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+    # Install Docker official GPG key
+    mkdir -p /etc/apt/keyrings
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 
-              # Install Docker CE and Plugins
-              apt-get update -y
-              apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+    # Set up Docker repository
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu noble stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-              # Start and Enable Docker
-              systemctl start docker
-              systemctl enable docker
+    # Install Docker CE and Plugins
+    apt-get update -y
+    apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-              # Add ubuntu user to docker group
-              usermod -aG docker ubuntu
-              EOF
+    # Start and Enable Docker
+    systemctl start docker
+    systemctl enable docker
+
+    # Add ubuntu user to docker group
+    usermod -aG docker ubuntu
+  EOF
+  user_data_replace_on_change = true
 
   tags = {
-    Name = "next-pyon-prod-server"
+    Name = "HelloWorld"
   }
 }
 
-# 5. Outputs
+# Outputs
 output "public_ip" {
   description = "The public IP address of the EC2 instance"
-  value       = aws_instance.web_server.public_ip
+  value       = aws_instance.example.public_ip
+}
+
+output "public_url" {
+  description = "URL of the httpd server"
+  value       = "http://${aws_instance.example.public_ip}/"
 }
