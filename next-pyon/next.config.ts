@@ -16,6 +16,7 @@ const standalone =
 
 const nextConfig: NextConfig = {
   ...standalone,
+  serverExternalPackages: ["pg", "pg-cloudflare"],
 };
 
 export default nextConfig;
