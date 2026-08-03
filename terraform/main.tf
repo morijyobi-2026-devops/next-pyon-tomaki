@@ -395,6 +395,9 @@ resource "aws_instance" "web" {
     # Prepare app directory and environment variables
     mkdir -p /home/ubuntu/app
     
+    # Generate .env with DB connection string early so it is available even if first boot doesn't deploy
+    echo "DATABASE_URL=postgresql://${var.rds_username}:${var.rds_password}@${aws_db_instance.db.endpoint}/${var.rds_db_name}" > /home/ubuntu/app/.env
+    
     # Download deploy.zip from S3 (if it exists) and deploy
     # (First creation won't have the zip file yet, it will fail silently and be deployed by deploy.sh)
     aws s3 cp s3://${aws_s3_bucket.deploy.bucket}/deploy.zip /home/ubuntu/app/deploy.zip || true
@@ -402,9 +405,6 @@ resource "aws_instance" "web" {
     if [ -f /home/ubuntu/app/deploy.zip ]; then
       unzip -o /home/ubuntu/app/deploy.zip -d /home/ubuntu/app/
       rm /home/ubuntu/app/deploy.zip
-      
-      # Generate .env with DB connection string
-      echo "DATABASE_URL=postgresql://${var.rds_username}:${var.rds_password}@${aws_db_instance.db.endpoint}/${var.rds_db_name}" > /home/ubuntu/app/.env
       
       # Start docker containers
       cd /home/ubuntu/app
