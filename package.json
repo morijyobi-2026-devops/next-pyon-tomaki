@@ -21,5 +21,8 @@
   "lint-staged": {
     "*.md": "markdownlint-cli2",
     "next-pyon/**/*.{js,jsx,ts,tsx}": "pnpm --filter next-pyon exec eslint"
+  },
+  "dependencies": {
+    "pg-cloudflare": "1.4.0"
   }
 }
