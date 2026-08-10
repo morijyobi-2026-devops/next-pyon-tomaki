@@ -12,7 +12,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN corepack enable pnpm
 
 # 依存解決に必要なファイルだけ先にコピーしてレイヤーキャッシュを効かせる
-COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json .npmrc ./
 COPY next-pyon/package.json ./next-pyon/
 # install 後、同じレイヤー内で pnpm ストア/キャッシュを削除してイメージを縮める。
 # node_modules はハードリンクで実体が残るため壊れない（1.11GB -> 826MB）。

@@ -11,7 +11,7 @@ FROM base AS builder
 WORKDIR /app
 
 # 依存解決に必要なファイルだけ先にコピーしてレイヤーキャッシュを効かせる
-COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json .npmrc ./
 COPY next-pyon/package.json ./next-pyon/
 RUN pnpm install --frozen-lockfile
 
