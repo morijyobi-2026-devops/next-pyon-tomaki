@@ -8,6 +8,8 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 # Step 1. 依存解決とビルド
 FROM base AS builder
+# better-sqlite3 等のネイティブモジュールビルド用にツールをインストール
+RUN apk add --no-cache python3 make g++
 WORKDIR /app
 
 # 依存解決に必要なファイルだけ先にコピーしてレイヤーキャッシュを効かせる

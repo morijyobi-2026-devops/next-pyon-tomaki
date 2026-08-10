@@ -11,6 +11,9 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN corepack enable pnpm
 
+# better-sqlite3 等のネイティブモジュールビルド用にツールをインストール
+RUN apk add --no-cache python3 make g++
+
 # 依存解決に必要なファイルだけ先にコピーしてレイヤーキャッシュを効かせる
 COPY pnpm-workspace.yaml pnpm-lock.yaml package.json .npmrc ./
 COPY next-pyon/package.json ./next-pyon/
